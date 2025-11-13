@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -164,6 +165,21 @@ const Blockoduko = () => {
   const [selectedBlock, setSelectedBlock] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [multiplier, setMultiplier] = useState(1);
+  const [highScore, setHighScore] = useState(0); 
+
+  useEffect(() => {
+    (async () => {
+      const savedScore = await AsyncStorage.getItem('highScore');
+      if(savedScore) setHighScore(parseInt(savedScore, 10));
+    })();
+  }, []);
+
+  useEffect(() => {
+    if(score > highScore){
+      setHighScore(score);
+      AsyncStorage.setItem('highScore', score.toString());
+    }
+  }, [score, highScore]);
 
   useEffect(() => {
     if (availableBlocks.length > 0 && !isGameOver) {
@@ -237,6 +253,7 @@ const Blockoduko = () => {
       <Text style={styles.title}>Blockodoku</Text>
       <View style={styles.scoreContainer}>
           <Text style={styles.score}>Score: {score}</Text>
+          <Text style={styles.highScore}>High Score: {highScore}</Text>
           <Text style={styles.multiplier}>Multiplier: {multiplier}x</Text>
       </View>
       <View>
@@ -362,6 +379,12 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
+    highScore: {
+    fontSize: 24,
+    color: '#4caf50',
+    fontWeight: 'bold',
+},
+
 });
 
 export default Blockoduko;
