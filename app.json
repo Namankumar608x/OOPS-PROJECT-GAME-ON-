@@ -1,34 +1,38 @@
 {
   "expo": {
-    "name": "PROJECT-INTERFACE",
-    "slug": "PROJECT-INTERFACE",
+    "name": "Game On",
+    "slug": "gameon",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon.jpeg",
     "scheme": "projectinterface",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true
     },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.jpeg",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.krishana.gameon"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/icon.jpeg"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/images/icon.jpeg",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
@@ -39,6 +43,18 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b5035ffb-1c76-4cfb-94f0-b12cf4f31120"
+      }
+    },
+    "owner": "krishana",
+    "updates": {
+      "url": "https://u.expo.dev/b5035ffb-1c76-4cfb-94f0-b12cf4f31120",
+      "enabled": true,
+      "fallbackToCacheTimeout": 0
     }
   }
 }

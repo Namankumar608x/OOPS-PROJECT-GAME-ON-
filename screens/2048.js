@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Pressable, useColorScheme } from 'react-native';
+import { Image } from 'react-native';
 import {
     View,
     Text,
@@ -9,12 +11,20 @@ import {
 } from 'react-native';
 import { Tile, GameManager } from '../components/GameManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import themeChange from '../assets/images/themeChange.png'
+// import { ThemeProvider, useTheme } from '@react-navigation/native';
+// const [Theme ,setTheme]=useState("light");
 
 const App = () => {
     const [game, setGame] = useState(new GameManager());
     const [score, setScore] = useState(0);
     const [highScore, setHighScore] = useState(0);
+    
+    const [Theme , setTheme] = useState("light");  
 
+    const toggleTheme = () => {
+        setTheme(prev => (prev === "light" ? "dark" : "light"));
+    };
     useEffect(() => {
         loadHighScore();
     }, []);
@@ -32,7 +42,9 @@ const App = () => {
             const value = await AsyncStorage.getItem('HIGH_SCORE');
             if (value !== null) {
                 setHighScore(parseInt(value, 10));
+                
             }
+            
         } catch (e) {
             console.error(e);
         }
@@ -43,12 +55,13 @@ const App = () => {
             try {
                 await AsyncStorage.setItem('HIGH_SCORE', newScore.toString());
                 setHighScore(newScore);
+                
             } catch (e) {
                 console.error(e);
             }
         }
     };
-
+    
     const handleMove = (direction) => {
         let moved = game.move(direction);
         if (moved) {
@@ -65,13 +78,20 @@ const App = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>2048 Game</Text>
+            
+            <SafeAreaView style={[styles.container,{ backgroundColor: Theme === "light" ? "#fff" : "#000" }]}>
+                <View style={styles.header}>
+                    <Text style={[styles.title,{ color: Theme === "light" ? "#000" : "#fff" }]}>2048 Game</Text>
+            <Pressable style={styles.themeBtn} onPress={toggleTheme}>
+                <Image source={require("../assets/images/themeChange.png")} ></Image>
+            </Pressable>
+                </View>
+            
             <View style={styles.scoreContainer}>
-                <Text style={styles.score}>Score: {score}</Text>
-                <Text style={styles.score}>High Score: {highScore}</Text>
+                <Text style={[styles.score,{ color: Theme === "light" ? "#000" : "#fff" }]}>Score: {score}</Text>
+                <Text style={[styles.score,{ color: Theme === "light" ? "#000" : "#fff" }]}>High Score: {highScore}</Text>
             </View>
-            <View style={styles.grid}>
+            <View style={[styles.grid,{ backgroundColor:Theme==="light"?"#bbada0":"#3a3a32"}]}>
                 {game.grid.map((row, rowIndex) => (
                     <View key={rowIndex} style={styles.row}>
                         {row.map((tile, colIndex) => (
@@ -86,25 +106,27 @@ const App = () => {
             </View>
             <View style={styles.controls}>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('up')} style={styles.button}>
+                    <TouchableOpacity onPress={() => handleMove('up')} style={[styles.button,{backgroundColor:Theme==="light"?"#8f7a66":"#4a4238"}]}>
                         <Text style={styles.buttonText}>Up</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('left')} style={styles.button}>
+                    <TouchableOpacity onPress={() => handleMove('left')} style={[styles.button,{backgroundColor:Theme==="light"?"#8f7a66":"#4a4238"}]}>
                         <Text style={styles.buttonText}>Left</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleMove('right')} style={styles.button}>
+                    <TouchableOpacity onPress={() => handleMove('right')} style={[styles.button,{backgroundColor:Theme==="light"?"#8f7a66":"#4a4238"}]}>
                         <Text style={styles.buttonText}>Right</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('down')} style={styles.button}>
+                    <TouchableOpacity onPress={() => handleMove('down')} style={[styles.button,{backgroundColor:Theme==="light"?"#8f7a66":"#4a4238"}]}>
                         <Text style={styles.buttonText}>Down</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         </SafeAreaView>
+        
+        
     );
 };
 
@@ -133,11 +155,11 @@ function tileStyle(tile) {
         backgroundColor: tile ? colors[tile.value] || '#3c3a32' : '#cdc1b4',
     };
 }
-
+// const scheme = useColorScheme();
+// const theme=useTheme();
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#faf8ef',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -193,6 +215,21 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 18,
     },
+    themeBtn:{
+        justifyContent:"center",
+        alignItems:"center",
+        width: 60,
+        height: 60,
+        borderRadius: 60 / 2,    
+        borderWidth: 3,
+        borderColor: "yellow",
+    },
+    header:{
+        width:"100%",
+        display:"flex",
+        justifyContent:"space-around",
+        flexDirection:"row"
+    }
 });
 
 export default App;
