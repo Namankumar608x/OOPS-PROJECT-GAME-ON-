@@ -15,7 +15,7 @@ const StackNavigatorContainer =()=>{
     return (
     <Stack.Navigator >
         <Stack.Screen name="Home" component={homeScreen} />
-        <Stack.Screen name="2048" component={game2048}/>
+        <Stack.Screen name="2048" component={game2048} />
         <Stack.Screen name="Blockoduko" component={Blockoduko}/>
          <Stack.Screen name="SnakeGame" component={SnakeGame}/>
         <Stack.Screen name="PacmanScreen" component={PacmanScreen}/>
