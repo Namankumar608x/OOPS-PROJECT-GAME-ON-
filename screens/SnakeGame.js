@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const GRID_SIZE = 20;
 const CELL_SIZE = 15;
-const INITIAL_SPEED = 150;
+const INITIAL_SPEED = 200;
 
 class GameObject {
   #x;
@@ -12,7 +12,7 @@ class GameObject {
     this.#x = x; 
     this.#y = y;
   }
-
+ 
   get x() { return this.#x; }
   get y() { return this.#y; }
   set x(value) { this.#x = value; }
@@ -23,7 +23,7 @@ class GameObject {
   }
 
   render() {
-    throw new Error('RENDER SHOULD BE IMPLEMENTED BY SUBCLASS');
+    throw new Error (' ERROR! RENDER SHOULD BE IMPLEMENTED BY SUBCLASS ');
   }
 }
 
@@ -65,8 +65,8 @@ class SnakeSegment extends GameObject {
   render() {
     return {
       position: this.getPosition(),
-      color: this.#isHead ? '#4ea7cdff' : '#45B7AF',
-      size: CELL_SIZE
+      color: this.#isHead ? '#278c27ff' : '#81f145ff',
+      size: CELL_SIZE,
     };
   }
 }

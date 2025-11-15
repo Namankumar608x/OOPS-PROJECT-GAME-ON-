@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -29,29 +30,29 @@ const BLOCK_SHAPES = {
   T_r: [[0, 1], [1, 1], [0, 1]],
 };
 
-class Block {
-  constructor(shape) {
+class Block{
+  constructor(shape){
     this.shape = shape;
   }
 }
 
-class BlockGenerator {
-  constructor() {
+class BlockGenerator{
+  constructor(){
     this.allBlocks = Object.values(BLOCK_SHAPES).map(shape => new Block(shape));
   }
 
-  getRandomBlock() {
+  getRandomBlock(){
     const randomIndex = Math.floor(Math.random() * this.allBlocks.length);
     return this.allBlocks[randomIndex];
   }
 
-  getNewBlockSet() {
+  getNewBlockSet(){
     return [this.getRandomBlock(), this.getRandomBlock(), this.getRandomBlock()];
   }
 }
 
-class Grid {
-  constructor(size = 9) {
+class Grid{
+  constructor(size = 8){
     this.size = size;
     this.matrix = Array(size).fill(null).map(() => Array(size).fill(0));
   }
@@ -164,6 +165,21 @@ const Blockoduko = () => {
   const [selectedBlock, setSelectedBlock] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [multiplier, setMultiplier] = useState(1);
+  const [highScore, setHighScore] = useState(0); 
+
+  useEffect(() => {
+    (async () => {
+      const savedScore = await AsyncStorage.getItem('highScore');
+      if(savedScore) setHighScore(parseInt(savedScore, 10));
+    })();
+  }, []);
+
+  useEffect(() => {
+    if(score > highScore){
+      setHighScore(score);
+      AsyncStorage.setItem('highScore', score.toString());
+    }
+  }, [score, highScore]);
 
   useEffect(() => {
     if (availableBlocks.length > 0 && !isGameOver) {
@@ -237,6 +253,7 @@ const Blockoduko = () => {
       <Text style={styles.title}>Blockodoku</Text>
       <View style={styles.scoreContainer}>
           <Text style={styles.score}>Score: {score}</Text>
+          <Text style={styles.highScore}>High Score: {highScore}</Text>
           <Text style={styles.multiplier}>Multiplier: {multiplier}x</Text>
       </View>
       <View>
@@ -362,6 +379,12 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
+    highScore: {
+    fontSize: 24,
+    color: '#4caf50',
+    fontWeight: 'bold',
+},
+
 });
 
 export default Blockoduko;

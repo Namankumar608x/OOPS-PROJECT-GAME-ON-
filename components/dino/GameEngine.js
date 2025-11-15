@@ -1,7 +1,7 @@
 import { Dino } from './Dino';
 import { Obstacle } from './Obstacle';
 import { Ground } from './Ground';
-
+import { Cloud } from './Cloud'
 
 export class GameEngine {
   constructor(gameWidth, gameHeight) {
@@ -9,7 +9,14 @@ export class GameEngine {
     this.gameHeight = gameHeight;
     this.groundHeight = 50;
     this.groundY = gameHeight - this.groundHeight;
-    
+    this.clouds = [];
+    this.lastCloudFrame = 0;
+    for (let i = 0; i < 3; i++) {
+    const cloudY = 30 + Math.random() * 80;
+    const cloudX = (i * 200) + gameWidth;
+    const cloud = new Cloud(cloudX, cloudY);
+    this.clouds.push(cloud);
+  }
  
     this.ground = new Ground(this.groundY, gameWidth, this.groundHeight);
     this.dino = new Dino(50, this.groundY - 5);
@@ -45,6 +52,7 @@ export class GameEngine {
   reset() {
     this.dino.reset();
     this.obstacles = [];
+    this.clouds = [];
     this.score = 0;
     this.gameSpeed = this.initialSpeed;
     this.frameCount = 0;
@@ -85,10 +93,36 @@ export class GameEngine {
 
     this.updateObstacles();
 
-
+    this.spawnClouds();
+    this.updateClouds();
     this.checkCollisions();
   }
 
+  spawnClouds() {
+  const timeSinceLastCloud = this.frameCount - this.lastCloudFrame;
+  
+  if (timeSinceLastCloud > 100) { // Har 200 frames
+    const cloudY = 30 + Math.random() * 80; // Random Y position (top area)
+    const cloud = new Cloud(this.gameWidth, cloudY);
+    this.clouds.push(cloud);
+    this.lastCloudFrame = this.frameCount;
+  }
+}
+
+updateClouds() {
+  this.clouds.forEach(cloud => {
+    cloud.update();
+  });
+  this.clouds = this.clouds.filter(cloud => cloud.active);
+}
+  checkCollisions() {
+    for (let obstacle of this.obstacles) {
+      if (this.dino.checkCollision(obstacle)) {
+        this.gameOver();
+        break;
+      }
+    }
+  }
 
   spawnObstacles() {
     const timeSinceLastObstacle = this.frameCount - this.lastObstacleFrame;
@@ -121,15 +155,31 @@ export class GameEngine {
     this.obstacles = this.obstacles.filter(obstacle => obstacle.active);
   }
 
+// spawnClouds() {
+//   const timeSinceLastCloud = this.frameCount - this.lastCloudFrame;
+  
+//   if (timeSinceLastCloud > 200) { // Har 200 frames
+//     const cloudY = 30 + Math.random() * 80; // Random Y position (top area)
+//     const cloud = new Cloud(this.gameWidth, cloudY);
+//     this.clouds.push(cloud);
+//     this.lastCloudFrame = this.frameCount;
+//   }
+// }
 
-  checkCollisions() {
-    for (let obstacle of this.obstacles) {
-      if (this.dino.checkCollision(obstacle)) {
-        this.gameOver();
-        break;
-      }
-    }
-  }
+// updateClouds() {
+//   this.clouds.forEach(cloud => {
+//     cloud.update();
+//   });
+//   this.clouds = this.clouds.filter(cloud => cloud.active);
+// }
+//   checkCollisions() {
+//     for (let obstacle of this.obstacles) {
+//       if (this.dino.checkCollision(obstacle)) {
+//         this.gameOver();
+//         break;
+//       }
+//     }
+//   }
 
 
   gameOver() {
@@ -144,6 +194,7 @@ export class GameEngine {
 
   getGameState() {
     return {
+      clouds: this.clouds.map(cloud => cloud.getPosition()),
       dino: this.dino.getState(),
       obstacles: this.obstacles.map(obs => ({
         x: obs.x,

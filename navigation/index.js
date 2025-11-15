@@ -7,6 +7,9 @@ import SnakeGame from "../screens/SnakeGame";
 import PacmanScreen from "../screens/PacmanScreen";
 import DinoJumpScreen from "../screens/DinojumpScreen";
 import TicTacToeScreen from "../screens/tictactoe";
+import Sudoku from "../screens/sudoku";
+import Bingo from "../screens/Bingo";
+
 const Stack = createNativeStackNavigator();
 const StackNavigatorContainer =()=>{
     return (
@@ -18,6 +21,8 @@ const StackNavigatorContainer =()=>{
         <Stack.Screen name="PacmanScreen" component={PacmanScreen}/>
         <Stack.Screen name="DinoJump" component={DinoJumpScreen}/> 
         <Stack.Screen name="TicTacToe" component={TicTacToeScreen}/>
+        <Stack.Screen name="Sudoku" component={Sudoku}/> 
+        <Stack.Screen name="Bingo" component={Bingo}/> 
     </Stack.Navigator>
     )
 }

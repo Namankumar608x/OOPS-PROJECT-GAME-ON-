@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GameEngine } from './dino/GameEngine';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const GAME_WIDTH = SCREEN_WIDTH;
@@ -99,7 +101,13 @@ export default function DinoGameManager() {
       </View>
 
       {/* Game Area */}
-      <View style={[styles.gameArea, { height: GAME_HEIGHT }]}>
+  <LinearGradient
+  colors={['#90cfe8ff', '#f9f9f9ff']}
+  start={{ x: 0, y: 0 }}
+  end={{ x: 0, y: 1 }}
+  style={[styles.gameArea, { height: GAME_HEIGHT }]}
+>
+
         {/* Start Screen */}
         {!gameState.isRunning && !gameState.isGameOver && (
           <View style={styles.overlay}>
@@ -129,6 +137,24 @@ export default function DinoGameManager() {
             </TouchableOpacity>
           </View>
         )}
+        
+       {gameState.clouds.map((cloud, index) => (
+  <Image
+    key={`cloud-${index}`}
+    source={require('../assets/images/cloud.png')}
+    style={[
+      styles.cloud,
+      {
+        left: cloud.x,
+        top: cloud.y,
+        width: cloud.width,
+        height: cloud.height,
+        tintColor: '#999999',  // Gray color
+      },
+    ]}
+    resizeMode="contain"
+  />
+))}
 
         {/* Dino */}
         <View
@@ -159,6 +185,7 @@ export default function DinoGameManager() {
     resizeMode="contain"
    />
    )}
+
         </View>
 
         {/* Obstacles */}
@@ -205,7 +232,7 @@ export default function DinoGameManager() {
             { bottom: gameState.groundHeight }
           ]}
         />
-      </View>
+      </LinearGradient>
 
       {/* Controls for mobile */}
       {Platform.OS !== 'web' && (
@@ -244,11 +271,10 @@ const styles = StyleSheet.create({
     color: '#535353',
     fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
   },
-  gameArea: {
-    position: 'relative',
-    backgroundColor: '#f7f7f7',
-    overflow: 'hidden',
-  },
+ gameArea: {
+  position: 'relative',
+  overflow: 'hidden',
+},
   overlay: {
     position: 'absolute',
     top: 0,
@@ -367,4 +393,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 5,
   },
+  cloud: {
+  position: 'absolute',
+  opacity: 0.9,  // Increase opacity (was 0.7)
+  zIndex: 0,
+  tintColor: '#888888',
+},
 });

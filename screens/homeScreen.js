@@ -135,6 +135,22 @@ const Playground = ({ navigation }) => {
         bgColor: "#FFD166",
         screen: "FlappyBird",
       },
+            {
+  id:7,
+  category: "Puzzle",
+  icon: "🔢",
+  bgColor: "#FFD166",
+  screen: "Sudoku"
+},
+{
+  id: 8,
+  category: "Bingo",
+  icon: "🧮",
+  bgColor: "#FFB6C1", 
+  screen: "Bingo"
+},
+
+
     ];
 
     setTimeout(() => {
