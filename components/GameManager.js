@@ -7,7 +7,7 @@ class Tile {
     }
 }
 
-class GameManager {
+class GameManager  {
     constructor(size = 4) {
         this.size = size;
         this.grid = this.emptyGrid();

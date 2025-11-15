@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useColorScheme } from 'react-native';
 import {
     View,
     Text,
@@ -9,7 +10,7 @@ import {
 } from 'react-native';
 import { Tile, GameManager } from '../components/GameManager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { ThemeProvider, useTheme } from '@react-navigation/native';
 const App = () => {
     const [game, setGame] = useState(new GameManager());
     const [score, setScore] = useState(0);
@@ -65,7 +66,8 @@ const App = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <ThemeProvider>
+            <SafeAreaView style={styles.container}>
             <Text style={styles.title}>2048 Game</Text>
             <View style={styles.scoreContainer}>
                 <Text style={styles.score}>Score: {score}</Text>
@@ -105,6 +107,8 @@ const App = () => {
                 </View>
             </View>
         </SafeAreaView>
+        </ThemeProvider>
+        
     );
 };
 
@@ -133,11 +137,12 @@ function tileStyle(tile) {
         backgroundColor: tile ? colors[tile.value] || '#3c3a32' : '#cdc1b4',
     };
 }
-
+// const scheme = useColorScheme();
+const theme=useTheme();
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#faf8ef',
+        backgroundColor: theme==="light"?"#fff":"black",
         alignItems: 'center',
         justifyContent: 'center',
     },

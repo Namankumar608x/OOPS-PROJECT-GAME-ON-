@@ -106,11 +106,11 @@ const Playground = ({ navigation }) => {
       },
       {
         id: 3,
-        title: "Pac-Man",
+        title: "TicTacToe",
         category: "Arcade",
         icon: "👾",
         bgColor: "#FFE66D",
-        screen: "PacmanScreen",
+        screen: "TicTacToe",
       },
       {
         id: 4,
