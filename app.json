@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "PROJECT-INTERFACE",
-    "slug": "PROJECT-INTERFACE",
+    "name": "Game On",
+    "slug": "gameon",
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.krishana.gameon"
     },
     "web": {
       "bundler": "metro",
@@ -39,6 +40,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b5035ffb-1c76-4cfb-94f0-b12cf4f31120"
+      }
+    },
+    "owner": "krishana"
   }
 }
