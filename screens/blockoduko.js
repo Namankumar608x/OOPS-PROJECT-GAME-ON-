@@ -47,7 +47,12 @@ class BlockGenerator{
   }
 
   getNewBlockSet(){
-    return [this.getRandomBlock(), this.getRandomBlock(), this.getRandomBlock()];
+  const blocksCopy = [...this.allBlocks];
+  for(var i = blocksCopy.length - 1; i > 0; i--){ 
+    const j = Math.floor(Math.random() * (i + 1));
+    [blocksCopy[i], blocksCopy[j]] = [blocksCopy[j], blocksCopy[i]];
+  }
+  return blocksCopy.slice(0, 3);
   }
 }
 
@@ -381,7 +386,7 @@ const styles = StyleSheet.create({
     },
     highScore: {
     fontSize: 24,
-    color: '#4caf50',
+    color: '#ffc107',
     fontWeight: 'bold',
 },
 
