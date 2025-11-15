@@ -106,20 +106,20 @@ const App = () => {
             </View>
             <View style={styles.controls}>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('up')} style={styles.button}>
+                    <TouchableOpacity onPress={() => handleMove('up')} style={[styles.button,{backgroundColor:Theme==="light"?"#8f7a66":"#4a4238"}]}>
                         <Text style={styles.buttonText}>Up</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('left')} style={styles.button}>
+                    <TouchableOpacity onPress={() => handleMove('left')} style={[styles.button,{backgroundColor:Theme==="light"?"#8f7a66":"#4a4238"}]}>
                         <Text style={styles.buttonText}>Left</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleMove('right')} style={styles.button}>
+                    <TouchableOpacity onPress={() => handleMove('right')} style={[styles.button,{backgroundColor:Theme==="light"?"#8f7a66":"#4a4238"}]}>
                         <Text style={styles.buttonText}>Right</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('down')} style={styles.button}>
+                    <TouchableOpacity onPress={() => handleMove('down')} style={[styles.button,{backgroundColor:Theme==="light"?"#8f7a66":"#4a4238"}]}>
                         <Text style={styles.buttonText}>Down</Text>
                     </TouchableOpacity>
                 </View>
