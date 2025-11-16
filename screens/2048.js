@@ -86,8 +86,8 @@ const App = () => {
             </View>
 
             <View style={styles.scoreContainer}>
-                <Text style={[styles.score, { color: "#000000" }]}>Score: {score}</Text>
-                <Text style={[styles.score, { color: "#000000" }]}>High Score: {highScore}</Text>
+                <Text style={[styles.score, { color: "#ffffff" }]}>Score: {score}</Text>
+                <Text style={[styles.score, { color: "#ffffff" }]}>High Score: {highScore}</Text>
             </View>
             <View style={[styles.grid,{opacity:1}]}>
                 {game.grid.map((row, rowIndex) => (
@@ -178,18 +178,24 @@ const styles = StyleSheet.create({
         gap:10
     },
     score: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        backgroundColor: "#9b21d9",
-        padding:10,
-        margin:10,
-        borderRadius: 5,
-        borderColor:"#ffffff",
-        borderWidth:2,
-        opacity:0.8
-    },
+  fontSize: 16,
+  fontWeight: '600',
+  paddingVertical: 10,
+  paddingHorizontal: 16,
+  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  borderRadius: 10,
+  borderWidth: 1.5,
+  borderColor: 'rgba(255,255,255,0.4)',
+  shadowColor: '#00eaff',
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.7,
+  shadowRadius: 8,
+  margin: 5,
+},
+
     grid: {
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+        borderRadius:20,
         padding: 5,
     },
     row: {
@@ -204,7 +210,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 5,
-        
+
         backgroundColor: '#1a1f3a',
         borderWidth: 2,
         borderColor: '#2a3f5f',
@@ -220,17 +226,23 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center"
     },
-    button: {
-        backgroundColor: "#9b21d9",
-        padding: 10,
-        margin: 5,
-        borderRadius: 5,
-        borderColor:"#fff",
-        borderWidth:2,
-        marginRight:10,
-        opacity:0.8,
-        gap:10
-    },
+   button: {
+  backgroundColor: '#7F5AF0',   
+  paddingVertical: 10,
+  paddingHorizontal: 16,
+  borderRadius: 6,
+  borderWidth: 2,     
+  opacity: 0.9,
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderColor: 'rgba(255,255,255,0.4)',
+  shadowColor: '#00eaff',
+  shadowOffset: { width: 0, height: 0 },
+    shadowRadius: 8,
+     shadowOpacity: 0.8,
+  margin: 6,                    
+},
+
     buttonText: {
         color: '#f9f6f2',
         fontWeight: 'bold',
