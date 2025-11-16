@@ -29,7 +29,7 @@ const App = () => {
     useEffect(() => {
         loadHighScore();
     }, []);
-
+    
     useEffect(() => {
         if (game.isGameOver()) {
             Alert.alert('Game Over', `Your score: ${score}`, [
@@ -80,17 +80,14 @@ const App = () => {
 
     return (
 
-        <ImageBackground source={require("../assets/images/background_main.png")} style={[styles.container]}>
+        <ImageBackground source={require("../assets/images/background(1).png")} style={[styles.container]}>
             <View style={styles.header}>
-                <Text style={[styles.title, { color: Theme === "light" ? "#000" : "#fff" }]}>2048 Game</Text>
-                <Pressable style={styles.themeBtn} onPress={toggleTheme}>
-                    <Image source={require("../assets/images/themeChange.png")} ></Image>
-                </Pressable>
+                <Image source={require("../assets/images/2048.png")} style={{height:"40",width:"70%"}}></Image>
             </View>
 
             <View style={styles.scoreContainer}>
-                <Text style={[styles.score, { color: Theme === "light" ? "#000" : "#fff" }]}>Score: {score}</Text>
-                <Text style={[styles.score, { color: Theme === "light" ? "#000" : "#fff" }]}>High Score: {highScore}</Text>
+                <Text style={[styles.score, { color: "#fff" }]}>Score: {score}</Text>
+                <Text style={[styles.score, { color: "#fff" }]}>High Score: {highScore}</Text>
             </View>
             <View style={[styles.grid,{opacity:1}]}>
                 {game.grid.map((row, rowIndex) => (
@@ -107,20 +104,20 @@ const App = () => {
             </View>
             <View style={styles.controls}>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('up')} style={[styles.button, { backgroundColor: Theme === "light" ? "#8f7a66" : "#4a4238" }]}>
+                    <TouchableOpacity onPress={() => handleMove('up')} style={[styles.button ]}>
                         <Text style={styles.buttonText}>Up</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('left')} style={[styles.button, { backgroundColor: Theme === "light" ? "#8f7a66" : "#4a4238" }]}>
+                    <TouchableOpacity onPress={() => handleMove('left')} style={[styles.button]}>
                         <Text style={styles.buttonText}>Left</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleMove('right')} style={[styles.button, { backgroundColor: Theme === "light" ? "#8f7a66" : "#4a4238" }]}>
+                    <TouchableOpacity onPress={() => handleMove('right')} style={[styles.button]}>
                         <Text style={styles.buttonText}>Right</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
-                    <TouchableOpacity onPress={() => handleMove('down')} style={[styles.button, { backgroundColor: Theme === "light" ? "#8f7a66" : "#4a4238" }]}>
+                    <TouchableOpacity onPress={() => handleMove('down')} style={[styles.button]}>
                         <Text style={styles.buttonText}>Down</Text>
                     </TouchableOpacity>
                 </View>
@@ -163,8 +160,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: "rgba(0,0,0,0.1)",  
-         zIndex: 0,
+        
     },
     title: {
         fontSize: 32,
@@ -174,14 +170,22 @@ const styles = StyleSheet.create({
     },
     scoreContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: "center",
         width: '80%',
         marginBottom: 20,
-        zIndex:2
+        marginTop:20,
+        gap:10
     },
     score: {
         fontSize: 20,
         fontWeight: 'bold',
+        backgroundColor: "#9b21d9",
+        padding:10,
+        margin:10,
+        borderRadius: 5,
+        borderColor:"#fff",
+        borderWidth:2,
+        opacity:0.8
     },
     grid: {
         backgroundColor: "transparent",
@@ -190,7 +194,8 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: 'row',
-        zIndex:2
+        zIndex:2,
+        marginLeft:5
     },
     cell: {
         width: 70,
@@ -211,11 +216,15 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     button: {
-        backgroundColor: '#8f7a66',
+        backgroundColor: "#9b21d9",
         padding: 10,
         margin: 5,
         borderRadius: 5,
-
+        borderColor:"#fff",
+        borderWidth:2,
+        marginRight:10,
+        opacity:0.8,
+        gap:10
     },
     buttonText: {
         color: '#f9f6f2',
@@ -232,10 +241,10 @@ const styles = StyleSheet.create({
         borderColor: "yellow",
     },
     header: {
-        width: "100%",
-        display: "flex",
-        justifyContent: "space-around",
-        flexDirection: "row"
+        width: "75%",
+        height:"auto",
+        justifyContent: "center",
+        alignItems:"center",
     }
 });
 

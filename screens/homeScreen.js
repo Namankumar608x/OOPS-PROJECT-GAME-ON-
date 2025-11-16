@@ -69,12 +69,6 @@ const GameCard = ({ item, index, onPress }) => {
                   <Text style={styles.cardTitle}>{item.title}</Text>
                   <Text style={styles.cardCategory}>{item.category}</Text>
                 </View>
-
-                <View style={styles.playButtonContainer}>
-                  <View style={[styles.playButton, pressed && styles.playButtonPressed]}>
-                    <Icon name="play-circle" size={40} color="#4ECDC4" style={styles.playIcon} />
-                  </View>
-                </View>
               </View>
             </View>
           </View>
@@ -140,6 +134,7 @@ const Playground = ({ navigation }) => {
       },
       {
         id: 7,
+        title: "Sudoku",
         category: "Puzzle",
         
         bgColor: "#FFD166",
@@ -148,7 +143,7 @@ const Playground = ({ navigation }) => {
       {
         id: 8,
         category: "Bingo",
-        
+        title:"Speedy Bingo",
         bgColor: "#FFB6C1",
         screen: "Bingo"
       },
