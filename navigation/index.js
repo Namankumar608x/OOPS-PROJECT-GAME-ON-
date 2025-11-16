@@ -9,6 +9,7 @@ import DinoJumpScreen from "../screens/DinojumpScreen";
 import TicTacToeScreen from "../screens/tictactoe";
 import Sudoku from "../screens/sudoku";
 import Bingo from "../screens/Bingo";
+import Connect4Game from "../screens/Connect4Game";
 
 const Stack = createNativeStackNavigator();
 const StackNavigatorContainer =()=>{
@@ -18,7 +19,7 @@ const StackNavigatorContainer =()=>{
         <Stack.Screen name="2048" component={game2048} options={{headerShown:false}}/>
         <Stack.Screen name="Blockoduko" component={Blockoduko} options={{headerShown:false}}/>
          <Stack.Screen name="SnakeGame" component={SnakeGame} options={{headerShown:false}}/>
-        <Stack.Screen name="PacmanGame" component={PacmanGame} options={{headerShown:false}}/>
+        <Stack.Screen name="Connect4Game" component={Connect4Game} options={{headerShown:false}}/>
         <Stack.Screen name="DinoJump" component={DinoJumpScreen} options={{headerShown:false}}/> 
         <Stack.Screen name="TicTacToe" component={TicTacToeScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Sudoku" component={Sudoku} options={{headerShown:false}}/> 
