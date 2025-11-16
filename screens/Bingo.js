@@ -1,4 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ImageBackground,
+  ScrollView,
+  Modal,
+} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ==================== ENCAPSULATION ====================
 class BingoCell {
@@ -242,7 +252,7 @@ class GameManager {
     this.#currentNumberIndex++;
     
     if (this.#currentNumberIndex >= this.#board.numbers.length) {
-      this.#currentNumberIndex = 0; // Loop back to start
+      this.#currentNumberIndex = 0;
     }
     
     return this.#board.numbers[this.#currentNumberIndex];
@@ -282,8 +292,46 @@ class GameManager {
   }
 }
 
-// ==================== REACT COMPONENT ====================
-export default function App() {
+// ==================== STORAGE MANAGER ====================
+class StorageManager {
+  async saveScore(scoreData) {
+    try {
+      const timestamp = Date.now();
+      await AsyncStorage.setItem(
+        `bingo-score:${timestamp}`,
+        JSON.stringify(scoreData)
+      );
+      return true;
+    } catch (error) {
+      console.error('Error saving score:', error);
+      return false;
+    }
+  }
+  
+  async loadHighScores() {
+    try {
+      const allKeys = await AsyncStorage.getAllKeys();
+      const bingoKeys = allKeys.filter(key => key.startsWith('bingo-score:'));
+      
+      if (bingoKeys.length === 0) return [];
+      
+      const scores = await AsyncStorage.multiGet(bingoKeys);
+      const validScores = scores
+        .map(([key, value]) => (value ? JSON.parse(value) : null))
+        .filter(s => s !== null)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+      
+      return validScores;
+    } catch (error) {
+      console.log('No previous scores found');
+      return [];
+    }
+  }
+}
+
+// ==================== REACT NATIVE COMPONENT ====================
+export default function SpeedBingo() {
   const [difficulty, setDifficulty] = useState('medium');
   const [gameManager, setGameManager] = useState(() => new GameManager('medium'));
   const [board, setBoard] = useState(gameManager.getBoard().board);
@@ -298,6 +346,7 @@ export default function App() {
   
   const gameTimerRef = useRef(null);
   const callTimerRef = useRef(null);
+  const storageManagerRef = useRef(new StorageManager());
   
   useEffect(() => {
     loadHighScores();
@@ -308,42 +357,22 @@ export default function App() {
   }, []);
   
   const loadHighScores = async () => {
-    try {
-      const result = await window.storage.list('bingo-score:', false);
-      if (result && result.keys) {
-        const scores = await Promise.all(
-          result.keys.map(async (key) => {
-            const data = await window.storage.get(key, false);
-            return data ? JSON.parse(data.value) : null;
-          })
-        );
-        const validScores = scores.filter(s => s !== null)
-          .sort((a, b) => b.score - a.score)
-          .slice(0, 5);
-        setHighScores(validScores);
-      }
-    } catch (error) {
-      console.log('No previous scores found');
-    }
+    const scores = await storageManagerRef.current.loadHighScores();
+    setHighScores(scores);
   };
   
   const saveScore = async (finalScore, finalLines, finalTime) => {
-    try {
-      const timestamp = Date.now();
-      const scoreData = {
-        score: finalScore,
-        lines: finalLines,
-        timeRemaining: finalTime,
-        difficulty: difficulty,
-        date: new Date().toLocaleDateString(),
-        timestamp: timestamp
-      };
-      
-      await window.storage.set(`bingo-score:${timestamp}`, JSON.stringify(scoreData), false);
-      await loadHighScores();
-    } catch (error) {
-      console.error('Error saving score:', error);
-    }
+    const scoreData = {
+      score: finalScore,
+      lines: finalLines,
+      timeRemaining: finalTime,
+      difficulty: difficulty,
+      date: new Date().toLocaleDateString(),
+      timestamp: Date.now()
+    };
+    
+    await storageManagerRef.current.saveScore(scoreData);
+    await loadHighScores();
   };
   
   const startGame = () => {
@@ -390,9 +419,7 @@ export default function App() {
     const cell = gameManager.getBoard().getCell(row, col);
     const number = cell.getNumber();
     
-    if (number !== currentNumber) {
-      return;
-    }
+    if (number !== currentNumber) return;
     
     const result = gameManager.markNumber(number);
     
@@ -427,7 +454,6 @@ export default function App() {
     setGameStatus('ready');
     setShowWinPopup(false);
     
-    // Reload high scores after game ends
     loadHighScores();
   };
   
@@ -446,411 +472,438 @@ export default function App() {
   };
   
   return (
-    <div style={styles.container}>
-      <div style={styles.content}>
-        {/* Top Bar - High Score */}
-        <div style={styles.topBar}>
-          <div style={styles.topBarLeft}>
-            <span style={styles.topBarIcon}>🏆</span>
-            <span style={styles.topBarLabel}>High Score:</span>
-            <span style={styles.topBarValue}>
-              {highScores.length > 0 ? highScores[0].score : '0'}
-            </span>
-          </div>
-          <div style={styles.topBarRight}>
-            <span style={styles.topBarLabel}>Difficulty:</span>
-            {['easy', 'medium', 'hard'].map(diff => (
-              <button
-                key={diff}
-                style={{
-                  ...styles.topBarDiffBtn,
-                  ...(difficulty === diff ? styles.topBarDiffBtnActive : {}),
-                }}
-                onClick={() => handleDifficultyChange(diff)}
-                disabled={isPlaying}
-              >
-                {diff.charAt(0).toUpperCase() + diff.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
-        
-        {/* Main Game Area */}
-        <div style={styles.mainArea}>
-          <h1 style={styles.title}>SPEED BINGO</h1>
-          
-          <div style={styles.gameRow}>
-            {/* Center - Board */}
-            <div style={styles.centerColumn}>
-              <div style={styles.currentNumberBox}>
-                <div style={styles.currentNumberLabel}>CURRENT</div>
-                <div style={styles.currentNumber}>
-                  {currentNumber !== null ? currentNumber : '--'}
-                </div>
-              </div>
-              
-              <div style={styles.statsRow}>
-                <div style={styles.statBox}>
-                  <div style={styles.statIcon}>⏱️</div>
-                  <div style={{...styles.statValue, ...(timeRemaining <= 10 ? {color: '#ff4444'} : {})}}>
-                    {timeRemaining}
-                  </div>
-                </div>
-                <div style={styles.statBox}>
-                  <div style={styles.statIcon}>🎯</div>
-                  <div style={styles.statValue}>{score}</div>
-                </div>
-                <div style={styles.statBox}>
-                  <div style={styles.statIcon}>📊</div>
-                  <div style={styles.statValue}>{linesCompleted}</div>
-                </div>
-              </div>
-              
-              <div style={styles.boardContainer}>
-                {board.map((row, rowIndex) => (
-                  <div key={rowIndex} style={styles.boardRow}>
-                    {row.map((cell, colIndex) => (
-                      <button
-                        key={colIndex}
-                        style={{
-                          ...styles.cell,
-                          ...(cell.isMarked() ? styles.cellMarked : {}),
-                        }}
-                        onClick={() => handleCellPress(rowIndex, colIndex)}
-                        disabled={!isPlaying || cell.isMarked()}
-                      >
-                        {cell.getNumber()}
-                      </button>
-                    ))}
-                  </div>
-                ))}
-              </div>
-              
-              {!isPlaying && (
-                <button
-                  style={{
-                    ...styles.actionBtn,
-                    ...(gameStatus === 'ready' ? styles.startBtn : styles.newGameBtn)
-                  }}
-                  onClick={gameStatus === 'ready' ? startGame : handleNewGame}
+    <ImageBackground
+      source={{ uri: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb' }}
+      style={styles.background}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.content}>
+          {/* Top Bar */}
+          <View style={styles.topBar}>
+            <View style={styles.topBarLeft}>
+              <Text style={styles.topBarIcon}>🏆</Text>
+              <Text style={styles.topBarLabel}>High Score:</Text>
+              <Text style={styles.topBarValue}>
+                {highScores.length > 0 ? highScores[0].score : '0'}
+              </Text>
+            </View>
+            <View style={styles.topBarRight}>
+              <Text style={styles.topBarLabel}>Difficulty:</Text>
+              {['easy', 'medium', 'hard'].map(diff => (
+                <TouchableOpacity
+                  key={diff}
+                  style={[
+                    styles.diffButton,
+                    difficulty === diff && styles.diffButtonActive
+                  ]}
+                  onPress={() => handleDifficultyChange(diff)}
+                  disabled={isPlaying}
                 >
-                  {gameStatus === 'ready' ? 'START GAME' : 'NEW GAME'}
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+                  <Text style={[
+                    styles.diffButtonText,
+                    difficulty === diff && styles.diffButtonTextActive
+                  ]}>
+                    {diff.charAt(0).toUpperCase() + diff.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          
+          {/* Title */}
+          <Text style={styles.title}>SPEED BINGO</Text>
+          
+          {/* Current Number Box */}
+          <View style={styles.currentNumberBox}>
+            <Text style={styles.currentNumberLabel}>CURRENT</Text>
+            <Text style={styles.currentNumber}>
+              {currentNumber !== null ? currentNumber : '--'}
+            </Text>
+          </View>
+          
+          {/* Stats Row */}
+          <View style={styles.statsRow}>
+            <View style={styles.statBox}>
+              <Text style={styles.statIcon}>⏱️</Text>
+              <Text style={[
+                styles.statValue,
+                timeRemaining <= 10 && styles.statValueDanger
+              ]}>
+                {timeRemaining}
+              </Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statIcon}>🎯</Text>
+              <Text style={styles.statValue}>{score}</Text>
+            </View>
+            <View style={styles.statBox}>
+              <Text style={styles.statIcon}>📊</Text>
+              <Text style={styles.statValue}>{linesCompleted}</Text>
+            </View>
+          </View>
+          
+          {/* Board */}
+          <View style={styles.boardContainer}>
+            {board.map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.boardRow}>
+                {row.map((cell, colIndex) => (
+                  <TouchableOpacity
+                    key={colIndex}
+                    style={[
+                      styles.cell,
+                      cell.isMarked() && styles.cellMarked
+                    ]}
+                    onPress={() => handleCellPress(rowIndex, colIndex)}
+                    disabled={!isPlaying || cell.isMarked()}
+                  >
+                    <Text style={[
+                      styles.cellText,
+                      cell.isMarked() && styles.cellTextMarked
+                    ]}>
+                      {cell.getNumber()}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ))}
+          </View>
+          
+          {/* Action Button */}
+          {!isPlaying && (
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                gameStatus === 'ready' ? styles.startButton : styles.newGameButton
+              ]}
+              onPress={gameStatus === 'ready' ? startGame : handleNewGame}
+            >
+              <Text style={styles.actionButtonText}>
+                {gameStatus === 'ready' ? 'START GAME' : 'NEW GAME'}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
       
-      {/* Win Popup */}
-      {showWinPopup && (
-        <div style={styles.overlay}>
-          <div style={styles.popup}>
-            <div style={styles.bingoText}>BINGO!</div>
-            <div style={styles.popupEmoji}>🎉</div>
-            <div style={styles.popupTitle}>YOU WON!</div>
-            <div style={styles.popupStats}>
-              <div>Score: <strong>{score}</strong></div>
-              <div>Lines: <strong>{linesCompleted}</strong></div>
-              <div>Time Left: <strong>{timeRemaining}s</strong></div>
-            </div>
-            <button style={styles.popupBtn} onClick={handleNewGame}>
-              PLAY AGAIN
-            </button>
-          </div>
-        </div>
-      )}
-      
-      <style>{`
-        .danger {
-          color: #ff4444 !important;
-        }
-      `}</style>
-    </div>
+      {/* Win Popup Modal */}
+      <Modal
+        visible={showWinPopup}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.popup}>
+            <Text style={styles.bingoText}>BINGO!</Text>
+            <Text style={styles.popupEmoji}>🎉</Text>
+            <Text style={styles.popupTitle}>YOU WON!</Text>
+            <View style={styles.popupStats}>
+              <Text style={styles.popupStatText}>
+                Score: <Text style={styles.popupStatBold}>{score}</Text>
+              </Text>
+              <Text style={styles.popupStatText}>
+                Lines: <Text style={styles.popupStatBold}>{linesCompleted}</Text>
+              </Text>
+              <Text style={styles.popupStatText}>
+                Time Left: <Text style={styles.popupStatBold}>{timeRemaining}s</Text>
+              </Text>
+            </View>
+            <TouchableOpacity style={styles.popupButton} onPress={handleNewGame}>
+              <Text style={styles.popupButtonText}>PLAY AGAIN</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </ImageBackground>
   );
 }
 
-const styles = {
+// ========================================
+// STYLES - Simple and Easy to Understand
+// ========================================
+const styles = StyleSheet.create({
+  // Background
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  
+  // Main container
   container: {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-    display: 'flex',
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: '10px',
-    fontFamily: 'Arial, sans-serif'
+    padding: 10,
   },
+  
   content: {
-    maxWidth: '800px',
     width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px'
+    maxWidth: 400,
+    alignItems: 'center',
   },
+  
+  // ========== TOP BAR ==========
   topBar: {
-    background: 'rgba(192, 192, 192, 0.15)',
-    borderRadius: '10px',
-    padding: '8px 15px',
-    display: 'flex',
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 10,
+    padding: 10,
+    flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: '40px'
+    width: '100%',
+    marginBottom: 10,
   },
+  
   topBarLeft: {
-    display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: '8px'
+    gap: 8,
   },
+  
   topBarIcon: {
-    fontSize: '20px',
+    fontSize: 20,
   },
+  
   topBarLabel: {
-    color: '#9A7C2F',
-    fontSize: '11px'
+    color: '#fbbf24',
+    fontSize: 11,
   },
+  
   topBarValue: {
-    color: '#9A7C2F',
-    fontSize: '16px',
-    fontWeight: 'bold'
-  },
-  topBarRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '6px'
-  },
-  topBarDiffBtn: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    color: '#888',
-    padding: '4px 10px',
-    borderRadius: '6px',
-    fontSize: '10px',
+    color: '#fbbf24',
+    fontSize: 16,
     fontWeight: 'bold',
-    cursor: 'pointer'
   },
-  topBarDiffBtnActive: {
-    background: '#00d4ff',
-    color: '#0a0e27',
-    border: '1px solid #00d4ff'
-  },
-  mainArea: {
-    display: 'flex',
-    flexDirection: 'column',
+  
+  topBarRight: {
+    flexDirection: 'row',
     alignItems: 'center',
-    gap: '8px'
+    gap: 6,
   },
+  
+  // Difficulty buttons
+  diffButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+  },
+  
+  diffButtonActive: {
+    backgroundColor: '#00d4ff',
+    borderColor: '#00d4ff',
+  },
+  
+  diffButtonText: {
+    color: '#888',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  
+  diffButtonTextActive: {
+    color: '#0a0e27',
+  },
+  
+  // ========== TITLE ==========
   title: {
     color: '#00d4ff',
-    fontSize: '24px',
+    fontSize: 28,
     fontWeight: 'bold',
-    margin: '0',
-    textShadow: '0 0 15px rgba(0, 212, 255, 0.5)',
-    letterSpacing: '3px'
+    marginBottom: 15,
+    letterSpacing: 3,
+    textShadowColor: 'rgba(0, 212, 255, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
   },
-  gameRow: {
-    display: 'flex',
-    gap: '12px',
-    width: '100%',
-    justifyContent: 'center',
-    alignItems: 'flex-start'
-  },
-  scoresColumn: {
-    width: '110px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '10px',
-    padding: '10px',
-    maxHeight: '400px',
-    overflow: 'auto'
-  },
-  scoresSectionTitle: {
-    color: '#00d4ff',
-    fontSize: '10px',
-    fontWeight: 'bold',
-    marginBottom: '8px',
-    textAlign: 'center'
-  },
-  noScores: {
-    color: '#888',
-    fontSize: '9px',
-    textAlign: 'center',
-    marginTop: '15px'
-  },
-  scoreItem: {
-    background: 'rgba(0, 212, 255, 0.1)',
-    borderRadius: '6px',
-    padding: '6px',
-    marginBottom: '5px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  scoreRank: {
-    color: '#00d4ff',
-    fontSize: '10px',
-    fontWeight: 'bold'
-  },
-  scorePoints: {
-    color: '#fff',
-    fontSize: '11px',
-    fontWeight: 'bold'
-  },
-  centerColumn: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '8px'
-  },
-  rightColumn: {
-    width: '110px'
-  },
+  
+  // ========== CURRENT NUMBER ==========
   currentNumberBox: {
-    background: 'rgba(0, 212, 255, 0.1)',
-    border: '2px solid #00d4ff',
-    borderRadius: '10px',
-    padding: '8px 20px',
-    textAlign: 'center',
-    boxShadow: '0 0 15px rgba(0, 212, 255, 0.3)'
+    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+    borderWidth: 2,
+    borderColor: '#00d4ff',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginBottom: 10,
   },
+  
   currentNumberLabel: {
     color: '#888',
-    fontSize: '9px',
-    marginBottom: '2px'
+    fontSize: 10,
+    marginBottom: 4,
   },
+  
   currentNumber: {
     color: '#00d4ff',
-    fontSize: '32px',
+    fontSize: 36,
     fontWeight: 'bold',
-    textShadow: '0 0 15px rgba(0, 212, 255, 0.7)'
+    textShadowColor: 'rgba(0, 212, 255, 0.7)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15,
   },
+  
+  // ========== STATS ROW ==========
   statsRow: {
-    display: 'flex',
-    gap: '8px'
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 10,
   },
+  
   statBox: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '8px',
-    padding: '6px 12px',
-    textAlign: 'center',
-    minWidth: '60px'
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 8,
+    padding: 8,
+    alignItems: 'center',
+    minWidth: 70,
   },
+  
   statIcon: {
-    fontSize: '16px',
-    marginBottom: '2px'
+    fontSize: 18,
+    marginBottom: 4,
   },
+  
   statValue: {
     color: '#00d4ff',
-    fontSize: '16px',
-    fontWeight: 'bold'
+    fontSize: 18,
+    fontWeight: 'bold',
   },
+  
+  statValueDanger: {
+    color: '#ff4444',
+  },
+  
+  // ========== BOARD ==========
   boardContainer: {
-    background: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: '12px',
-    padding: '8px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '5px'
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    borderRadius: 12,
+    padding: 8,
+    marginBottom: 10,
   },
+  
   boardRow: {
-    display: 'flex',
-    gap: '5px'
+    flexDirection: 'row',
+    gap: 5,
+    marginBottom: 5,
   },
+  
   cell: {
-    width: '48px',
-    height: '48px',
-    background: '#1a1f3a',
-    border: '2px solid #2a3f5f',
-    borderRadius: '8px',
-    color: '#8b9dc3',
-    fontSize: '15px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  cellMarked: {
-    background: '#2ecc71',
-    color: '#fff',
-    borderColor: '#27ae60',
-    boxShadow: '0 0 12px rgba(46, 204, 113, 0.5)',
-    cursor: 'not-allowed'
-  },
-  actionBtn: {
-    width: '100%',
-    maxWidth: '260px',
-    padding: '10px',
-    fontSize: '14px',
-    fontWeight: 'bold',
-    border: 'none',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-    marginTop: '5px'
-  },
-  startBtn: {
-    background: '#2ecc71',
-    color: '#fff'
-  },
-  newGameBtn: {
-    background: '#ff4757',
-    color: '#fff'
-  },
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: 'rgba(0, 0, 0, 0.8)',
-    display: 'flex',
+    width: 55,
+    height: 55,
+    backgroundColor: '#1a1f3a',
+    borderWidth: 2,
+    borderColor: '#2a3f5f',
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1000
   },
+  
+  cellMarked: {
+    backgroundColor: '#2ecc71',
+    borderColor: '#27ae60',
+  },
+  
+  cellText: {
+    color: '#8b9dc3',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
+  cellTextMarked: {
+    color: '#fff',
+  },
+  
+  // ========== ACTION BUTTON ==========
+  actionButton: {
+    width: '100%',
+    maxWidth: 300,
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 5,
+  },
+  
+  startButton: {
+    backgroundColor: '#2ecc71',
+  },
+  
+  newGameButton: {
+    backgroundColor: '#ff4757',
+  },
+  
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
+  // ========== WIN POPUP ==========
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  
   popup: {
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    borderRadius: '20px',
-    padding: '30px',
-    textAlign: 'center',
-    maxWidth: '350px',
-    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+    width: '85%',
+    maxWidth: 350,
+    backgroundColor: '#667eea',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
   },
+  
   bingoText: {
-    fontSize: '48px',
+    fontSize: 48,
     fontWeight: 'bold',
     color: '#ffd700',
-    textShadow: '0 0 20px rgba(255, 215, 0, 0.5)',
-    marginBottom: '10px',
-    letterSpacing: '8px'
+    marginBottom: 10,
+    letterSpacing: 8,
+    textShadowColor: 'rgba(255, 215, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 20,
   },
+  
   popupEmoji: {
-    fontSize: '64px',
-    marginBottom: '15px'
+    fontSize: 64,
+    marginBottom: 15,
   },
+  
   popupTitle: {
-    fontSize: '32px',
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: '20px'
+    marginBottom: 20,
   },
+  
   popupStats: {
-    color: '#fff',
-    fontSize: '16px',
-    marginBottom: '25px',
-    lineHeight: '1.8'
+    marginBottom: 25,
+    alignItems: 'center',
   },
-  popupBtn: {
-    background: '#ffd700',
-    color: '#333',
-    border: 'none',
-    padding: '12px 30px',
-    fontSize: '16px',
+  
+  popupStatText: {
+    color: '#fff',
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  
+  popupStatBold: {
     fontWeight: 'bold',
-    borderRadius: '10px',
-    cursor: 'pointer',
-    boxShadow: '0 4px 15px rgba(255, 215, 0, 0.3)',
-    transition: 'all 0.2s'
-  }
-};
+  },
+  
+  popupButton: {
+    backgroundColor: '#ffd700',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+  },
+  
+  popupButtonText: {
+    color: '#333',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
