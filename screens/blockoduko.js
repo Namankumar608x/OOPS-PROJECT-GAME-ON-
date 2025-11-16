@@ -30,15 +30,23 @@ const BLOCK_SHAPES = {
   T_r: [[0, 1], [1, 1], [0, 1]],
 };
 
-class Block {
-  constructor(shape) {
+class Block{
+  constructor(shape,color){
     this.shape = shape;
+    this.color=color;
   }
 }
 
-class BlockGenerator {
+class BlockGenerator{
   constructor() {
-    this.allBlocks = Object.values(BLOCK_SHAPES).map(shape => new Block(shape));
+    const colors = [
+      "#ff5252", "#ff9800", "#ffeb3b","#9c27b0"
+    ];
+
+    this.allBlocks = Object.values(BLOCK_SHAPES).map(shape => {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      return new Block(shape, randomColor);
+    });
   }
 
   getRandomBlock() {
@@ -59,7 +67,7 @@ class BlockGenerator {
 class Grid {
   constructor(size = 8) {
     this.size = size;
-    this.matrix = Array(size).fill(null).map(() => Array(size).fill(0));
+    this.matrix = Array(size).fill(null).map(() => Array(size).fill(null));
   }
 
   clone() {
@@ -69,15 +77,15 @@ class Grid {
   }
 
   canPlaceBlock(block, startRow, startCol) {
-    for (let r = 0; r < block.shape.length; r++) {
-      for (let c = 0; c < block.shape[r].length; c++) {
-        if (block.shape[r][c] === 1) {
+    for(let r = 0; r < block.shape.length; r++){
+      for(let c = 0; c < block.shape[r].length; c++){
+        if(block.shape[r][c] === 1){
           const boardRow = startRow + r;
           const boardCol = startCol + c;
-          if (
+          if(
             boardRow < 0 || boardCol < 0 ||
             boardRow >= this.size || boardCol >= this.size ||
-            this.matrix[boardRow][boardCol] === 1
+            this.matrix[boardRow][boardCol] !== null
           )
             return false;
         }
@@ -86,11 +94,11 @@ class Grid {
     return true;
   }
 
-  placeBlock(block, startRow, startCol) {
-    for (let r = 0; r < block.shape.length; r++) {
-      for (let c = 0; c < block.shape[r].length; c++) {
-        if (block.shape[r][c] === 1) {
-          this.matrix[startRow + r][startCol + c] = 1;
+  placeBlock(block, startRow, startCol){
+    for(let r = 0; r < block.shape.length; r++){
+      for(let c = 0; c < block.shape[r].length; c++){
+        if(block.shape[r][c] === 1){
+          this.matrix[startRow + r][startCol + c] = { filled: true, color: block.color };
         }
       }
     }
@@ -101,24 +109,24 @@ class Grid {
     const colsToClear = [];
 
     for (let r = 0; r < this.size; r++) {
-      if (this.matrix[r].every(cell => cell === 1)) {
+      if (this.matrix[r].every(cell => cell !== null)) {
         rowsToClear.push(r);
       }
     }
 
     for (let c = 0; c < this.size; c++) {
-      if (this.matrix.every(row => row[c] === 1)) {
+      if (this.matrix.every(row => row[c] !==null)) {
         colsToClear.push(c);
       }
     }
 
     for (const r of rowsToClear) {
-      this.matrix[r] = Array(this.size).fill(0);
+      this.matrix[r] = Array(this.size).fill(null);
     }
 
     for (const c of colsToClear) {
       for (let r = 0; r < this.size; r++) {
-        this.matrix[r][c] = 0;
+        this.matrix[r][c] = null;
       }
     }
 
@@ -143,9 +151,17 @@ function canAnyBlockBePlaced(grid, blocks) {
 const blockGenerator = new BlockGenerator();
 
 const Cell = ({ value }) => {
-  const cellStyle = value === 1 ? styles.filledCell : styles.emptyCell;
-  return <View style={[styles.cell, cellStyle]} />;
+  if(!value) return <View style={[styles.cell, styles.emptyCell]} />;
+  return (
+    <View
+      style={[
+        styles.cell,
+        { backgroundColor: value.color }
+      ]}
+    />
+  );
 };
+
 
 const BlockComponent = ({ block, onSelect, isSelected }) => {
   const wrapperStyle = isSelected ? [styles.blockWrapper, styles.selectedBlock] : styles.blockWrapper;
@@ -158,7 +174,9 @@ const BlockComponent = ({ block, onSelect, isSelected }) => {
               key={colIndex}
               style={[
                 styles.blockCell,
-                cellValue === 1 ? styles.filledBlockCell : styles.emptyBlockCell,
+                cellValue === 1
+                ? { backgroundColor: block.color, borderColor: block.color, borderWidth: 1 }
+                : styles.emptyBlockCell
               ]}
             />
           ))}
@@ -353,8 +371,6 @@ const styles = StyleSheet.create({
 
   cell: { width: 35, height: 35, borderWidth: 1, borderColor: '#ccc' },
   emptyCell: { backgroundColor: 'rgba(255,255,255,0.2)' },
-  filledCell: { backgroundColor: '#00bcd4' },
-
   blockContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
