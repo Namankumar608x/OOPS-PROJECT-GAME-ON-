@@ -4,14 +4,13 @@ import homeScreen from "../screens/homeScreen";
 import game2048 from "../screens/2048";
 import Blockoduko from "../screens/blockoduko";
 import SnakeGame from "../screens/SnakeGame";
-import PacmanGame from "../screens/PacmanGame";
 import DinoJumpScreen from "../screens/DinojumpScreen";
 import TicTacToeScreen from "../screens/tictactoe";
 import Sudoku from "../screens/sudoku";
 import Bingo from "../screens/Bingo";
 import Connect4Game from "../screens/Connect4Game";
 import Tetris from "../screens/Tetris.js";
-
+import FlappyBirdScreen from "../screens/FlappyBirdScreen";
 const Stack = createNativeStackNavigator();
 const StackNavigatorContainer =()=>{
     return (
@@ -26,6 +25,7 @@ const StackNavigatorContainer =()=>{
         <Stack.Screen name="Sudoku" component={Sudoku} options={{headerShown:false}}/> 
         <Stack.Screen name="Bingo" component={Bingo} options={{headerShown:false}}/> 
         <Stack.Screen name="Tetris" component={Tetris} options={{headerShown:false}}/> 
+        <Stack.Screen name="FlappyBird" component={FlappyBirdScreen} options={{headerShown:false}}/>
     </Stack.Navigator>
   );
 };

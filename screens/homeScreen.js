@@ -153,6 +153,12 @@ const Playground = ({ navigation }) => {
         bgColor: "#FFB6C1",
         screen: "Tetris"
       },
+      {id:10,
+        category:"flappy bird",
+        title:"Flappy Bird",
+        bgColor:"#87CEEB",
+        screen:"FlappyBird"
+      }
 
     ];
 
