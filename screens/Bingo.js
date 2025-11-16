@@ -836,8 +836,8 @@ actionButton: {
 },
 
 actionButtonIcon: {
-  width: 140,   // adjust size as needed
-  height: 60,   // adjust for your image
+  width: 140,   
+  height: 60, 
   resizeMode: 'contain',
 },
 
