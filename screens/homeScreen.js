@@ -135,7 +135,6 @@ const Playground = ({ navigation }) => {
         id: 7,
         title: "Sudoku",
         category: "Puzzle",
-        
         bgColor: "#FFD166",
         screen: "Sudoku"
       },
