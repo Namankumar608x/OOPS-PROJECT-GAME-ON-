@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ImageBackground, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 class SudokuBoard {
   constructor() {
@@ -73,15 +73,15 @@ class SudokuBoard {
 
     const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
     const chosen = {
-      thrice: digits[0],
-      twice: [digits[1], digits[2]],
-      singles: digits.slice(3, 8),
+      thrice: [digits[0], digits[1]],
+      twice: [digits[2], digits[3], digits[4]],
+      singles: digits.slice(5, 8),
     };
 
     const requirements = {};
     requirements[chosen.thrice] = 3;
-    for (const d of chosen.twice) requirements[d] = 2;
-    for (const d of chosen.singles) requirements[d] = 1;
+    for(const d of chosen.twice)requirements[d] = 2;
+    for(const d of chosen.singles)requirements[d] = 1;
 
     const chosenPositions = [];
     for (const [digitStr, count] of Object.entries(requirements)) {
@@ -96,11 +96,11 @@ class SudokuBoard {
       }
     }
 
-    if (chosenPositions.length !== 12) {
+    if(chosenPositions.length !== 16){
       const allPositions = [];
-      for (let r = 0; r < this.size; r++)
-        for (let c = 0; c < this.size; c++) allPositions.push([r, c]);
-      const sel = allPositions.sort(() => Math.random() - 0.5).slice(0, 12);
+      for(let r = 0; r < this.size; r++)
+        for(let c = 0; c < this.size; c++) allPositions.push([r, c]);
+      const sel = allPositions.sort(() => Math.random() - 0.5).slice(0, 16);
       const fallbackPositions = sel.map(([r, c]) => ({ digit: sol[r][c], pos: [r, c] }));
       for (let i = 0; i < fallbackPositions.length; i++) chosenPositions[i] = fallbackPositions[i];
     }
@@ -250,12 +250,18 @@ const SudokuApp = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require("../assets/images/background_main.png")}
+      style={styles.bg}
+      resizeMode="cover"
+    >
       <Text style={styles.title}>Sudoku</Text>
+
       <View style={styles.controlsRow}>
         <TouchableOpacity style={styles.controlButton} onPress={handleNewGame}>
           <Text style={styles.controlText}>New Game</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.controlButton} onPress={handleSolveBoard}>
           <Text style={styles.controlText}>Solve</Text>
         </TouchableOpacity>
@@ -268,6 +274,7 @@ const SudokuApp = () => {
               const key = `${r}-${c}`;
               const isGiven = !!givens[key];
               const isSelected = selected && selected[0] === r && selected[1] === c;
+
               return (
                 <TouchableOpacity
                   key={c}
@@ -295,29 +302,24 @@ const SudokuApp = () => {
           </View>
         ))}
       </View>
-
-      <View style={styles.metaRow}>
-        <Text style={styles.metaText}>Given digits: </Text>
-        {digitsChosen && (
-          <Text style={styles.metaTextSmall}>
-            {`3×${digitsChosen.thrice}, 2×${digitsChosen.twice[0]},2×${digitsChosen.twice[1]}, 1×${digitsChosen.singles.join(",")}`}
-          </Text>
-        )}
-      </View>
-
       <NumberPad onPick={handlePickNumber} onClear={handleClear} />
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: StatusBar.currentHeight, alignItems: "center", backgroundColor: "#f2f2f2" },
-  title: { fontSize: 28, fontWeight: "700", marginBottom: 10 },
+  bg: {
+    flex: 1,
+    padding: StatusBar.currentHeight,
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  title: { fontSize: 28, fontWeight: "700", marginBottom: 10, color: "#fff" },
   controlsRow: { flexDirection: "row", marginBottom: 12 },
   controlButton: {
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: "#007bff",
+    backgroundColor: "#9900ffff",
     marginHorizontal: 6,
     borderRadius: 6,
   },
@@ -325,10 +327,11 @@ const styles = StyleSheet.create({
   grid: {
     width: 9 * 38,
     height: 9 * 38,
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffffdd",
     borderWidth: 1,
     borderColor: "#ddd",
     padding: 0,
+    borderRadius: 4,
   },
   gridRow: { flexDirection: "row" },
   cell: {
@@ -337,13 +340,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 0.5,
-    borderColor: "#ddd",
+    borderColor: "#aaa",
     backgroundColor: "#fff",
   },
   cellText: { fontSize: 18 },
-  givenCell: { backgroundColor: "#ffecec" },
-  givenText: { color: "#c62828", fontWeight: "700" },
-  selectedCell: { backgroundColor: "#e3f2fd" },
+  givenCell: { backgroundColor: "#9900ffff" },
+  givenText: { color: "#ffffffff", fontWeight: "700" },
+  selectedCell: { backgroundColor: "#fdfbe3ff" },
   leftThickBorder: { borderLeftWidth: 2 },
   topThickBorder: { borderTopWidth: 2 },
   rightThickBorder: { borderRightWidth: 2 },
@@ -362,15 +365,12 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#9900ffff",
     borderWidth: 1,
     borderColor: "#ddd",
   },
-  numButtonText: { fontSize: 16, fontWeight: "600" },
-  clearButton: { backgroundColor: "#ffebee" },
-  metaRow: { marginTop: 10, flexDirection: "row", alignItems: "center" },
-  metaText: { fontSize: 14, fontWeight: "600", marginRight: 6 },
-  metaTextSmall: { fontSize: 13, color: "#333" },
+  numButtonText: { fontSize: 16, color: "#ffffffff", fontWeight: "600" },
+  clearButton: { color: "#ffffffff", backgroundColor: "#9900ffff" },
 });
 
 export default SudokuApp;
