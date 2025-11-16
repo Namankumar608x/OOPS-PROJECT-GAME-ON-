@@ -86,8 +86,8 @@ const App = () => {
             </View>
 
             <View style={styles.scoreContainer}>
-                <Text style={[styles.score, { color: "#fff" }]}>Score: {score}</Text>
-                <Text style={[styles.score, { color: "#fff" }]}>High Score: {highScore}</Text>
+                <Text style={[styles.score, { color: "#000000" }]}>Score: {score}</Text>
+                <Text style={[styles.score, { color: "#000000" }]}>High Score: {highScore}</Text>
             </View>
             <View style={[styles.grid,{opacity:1}]}>
                 {game.grid.map((row, rowIndex) => (
@@ -105,20 +105,20 @@ const App = () => {
             <View style={styles.controls}>
                 <View style={styles.row}>
                     <TouchableOpacity onPress={() => handleMove('up')} style={[styles.button ]}>
-                        <Text style={styles.buttonText}>Up</Text>
+                        <Text style={[styles.buttonText,{color:"#12022b"}]}>Up</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
                     <TouchableOpacity onPress={() => handleMove('left')} style={[styles.button]}>
-                        <Text style={styles.buttonText}>Left</Text>
+                        <Text style={[styles.buttonText,{color:"#12022b"}]}>Left</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleMove('right')} style={[styles.button]}>
-                        <Text style={styles.buttonText}>Right</Text>
+                        <Text style={[styles.buttonText,{color:"#12022b"}]}>Right</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.row}>
                     <TouchableOpacity onPress={() => handleMove('down')} style={[styles.button]}>
-                        <Text style={styles.buttonText}>Down</Text>
+                        <Text style={[styles.buttonText,{color:"#12022b"}]}>Down</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -136,21 +136,22 @@ function newGameManagerSnapshot(game) {
 }
 
 function tileStyle(tile) {
-    const colors = {
-        2: '#eee4da',
-        4: '#ede0c8',
-        8: '#f2b179',
-        16: '#f59563',
-        32: '#f67c5f',
-        64: '#f65e3b',
-        128: '#edcf72',
-        256: '#edcc61',
-        512: '#edc850',
-        1024: '#edc53f',
-        2048: '#edc22e',
-    };
+   const colors = {
+    2:    '#C4B5FD', // soft lavender
+    4:    '#A78BFA', // medium lavender
+    8:    '#8B5CF6', // bright purple
+    16:   '#7C3AED', // deep purple
+    32:   '#6D28D9', // darker purple
+    64:   '#5B21B6', // royal violet
+    128:  '#F472B6', // neon pink
+    256:  '#EC4899', // bright hot pink
+    512:  '#DB2777', // deep raspberry
+    1024: '#FBBF24', // sunset yellow (contrast boost)
+    2048: '#F59E0B', // golden sunset
+};
+
     return {
-        backgroundColor: tile ? colors[tile.value] || '#3c3a32' : '#cdc1b4',
+        backgroundColor: tile ? colors[tile.value] || '#1a1f3a' : '#1a1f3a',
     };
 }
 // const scheme = useColorScheme();
@@ -183,14 +184,13 @@ const styles = StyleSheet.create({
         padding:10,
         margin:10,
         borderRadius: 5,
-        borderColor:"#fff",
+        borderColor:"#ffffff",
         borderWidth:2,
         opacity:0.8
     },
     grid: {
-        backgroundColor: "transparent",
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         padding: 5,
-        
     },
     row: {
         flexDirection: 'row',
@@ -204,11 +204,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderRadius: 5,
+        
+        backgroundColor: '#1a1f3a',
+        borderWidth: 2,
+        borderColor: '#2a3f5f',
+        borderRadius: 8,
     },
     cellText: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#776e65',
+        color: '#000',
     },
     controls: {
         marginTop: 20,
