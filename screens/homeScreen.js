@@ -83,7 +83,6 @@ const GameCard = ({ item, index, onPress }) => {
     </ImageBackground>
   );
 };
-
 const Playground = ({ navigation }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -133,10 +132,11 @@ const Playground = ({ navigation }) => {
       },
       {
         id: 6,
+        title: "Pac-Man",
         category: "Arcade",
         
         bgColor: "#FFD166",
-        screen: "FlappyBird",
+        screen: "PacmanGame",  
       },
       {
         id: 7,
@@ -181,6 +181,7 @@ const Playground = ({ navigation }) => {
         <View style={[styles.gradientCircle, styles.circle2]} />
         <View style={[styles.gradientCircle, styles.circle3]} />
         <View style={[styles.gradientCircle, styles.circle4]} />
+
 
         <View style={styles.gridPattern}>
           {[...Array(20)].map((_, i) => (
