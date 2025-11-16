@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator, Animated, Dimensions, Platform, ImageBackground, StatusBar, } from 'react-native';
+import { ActivityIndicator, Animated, Dimensions, ImageBackground, Platform, Pressable, ScrollView, StatusBar, StyleSheet, Text, View, } from 'react-native';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -126,11 +125,11 @@ const Playground = ({ navigation }) => {
       },
       {
         id: 6,
-        title: "Pac-Man",
+        title: "Connect4",
         category: "Arcade",
         
         bgColor: "#FFD166",
-        screen: "PacmanGame",  
+        screen: "Connect4Game",  
       },
       {
         id: 7,
@@ -227,10 +226,6 @@ const Playground = ({ navigation }) => {
                     onPress={() => handleGamePress(item.screen)}
                   />
                 ))}
-              </View>
-
-              <View style={styles.footer}>
-                <Text style={styles.footerText}>About Us</Text>
               </View>
             </ScrollView>
           </Animated.View>
