@@ -32,6 +32,7 @@
     "expo-updates": "^29.0.12",
     "expo-web-browser": "~15.0.8",
     "force": "^0.0.3",
+    "memoize-one": "^6.0.0",
     "metro-react-native-babel-preset": "^0.77.0",
     "nativewind": "^4.2.1",
     "react": "19.1.0",
