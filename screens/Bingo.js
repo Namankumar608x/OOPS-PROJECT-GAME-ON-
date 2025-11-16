@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ImageBackground,
   ScrollView,
-  Modal,
+  Modal,Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -473,20 +473,13 @@ export default function SpeedBingo() {
   
   return (
     <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb' }}
+      source={require('../assets/images/background(1).png')}
       style={styles.background}
     >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.content}>
           {/* Top Bar */}
           <View style={styles.topBar}>
-            <View style={styles.topBarLeft}>
-              <Text style={styles.topBarIcon}>🏆</Text>
-              <Text style={styles.topBarLabel}>High Score:</Text>
-              <Text style={styles.topBarValue}>
-                {highScores.length > 0 ? highScores[0].score : '0'}
-              </Text>
-            </View>
             <View style={styles.topBarRight}>
               <Text style={styles.topBarLabel}>Difficulty:</Text>
               {['easy', 'medium', 'hard'].map(diff => (
@@ -509,9 +502,11 @@ export default function SpeedBingo() {
               ))}
             </View>
           </View>
-          
-          {/* Title */}
-          <Text style={styles.title}>SPEED BINGO</Text>
+        
+        <Image
+        source={require('../assets/images/Bingo_logo.png')}
+           style={styles.titleImage}
+           />
           
           {/* Current Number Box */}
           <View style={styles.currentNumberBox}>
@@ -568,20 +563,30 @@ export default function SpeedBingo() {
             ))}
           </View>
           
-          {/* Action Button */}
-          {!isPlaying && (
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                gameStatus === 'ready' ? styles.startButton : styles.newGameButton
-              ]}
-              onPress={gameStatus === 'ready' ? startGame : handleNewGame}
-            >
-              <Text style={styles.actionButtonText}>
-                {gameStatus === 'ready' ? 'START GAME' : 'NEW GAME'}
-              </Text>
-            </TouchableOpacity>
-          )}
+      
+        {/* Action Button */}
+{!isPlaying && (
+  <View style={styles.centerActionButton}>
+    <TouchableOpacity
+      style={[
+        styles.actionButton,
+        gameStatus === 'ready' ? styles.startButton : styles.newGameButton
+      ]}
+      onPress={gameStatus === 'ready' ? startGame : handleNewGame}
+    >
+      <Image
+        source={
+          gameStatus === 'ready'
+            ? require('../assets/images/startgame.png')
+            : require('../assets/images/new_image.png')
+        }
+        style={styles.actionButtonIcon}
+      />
+    </TouchableOpacity>
+  </View>
+)}
+
+
         </View>
       </ScrollView>
       
@@ -644,7 +649,9 @@ const styles = StyleSheet.create({
   
   // ========== TOP BAR ==========
   topBar: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(64, 0, 128, 0.4)',
+    borderColor:'#ffffff',
+    borderWidth:1,
     borderRadius: 10,
     padding: 10,
     flexDirection: 'row',
@@ -654,19 +661,12 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   
-  topBarLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  
-  topBarIcon: {
-    fontSize: 20,
-  },
+
   
   topBarLabel: {
-    color: '#fbbf24',
-    fontSize: 11,
+    color:'#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
   },
   
   topBarValue: {
@@ -683,46 +683,48 @@ const styles = StyleSheet.create({
   
   // Difficulty buttons
   diffButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-  },
-  
-  diffButtonActive: {
-    backgroundColor: '#00d4ff',
-    borderColor: '#00d4ff',
-  },
-  
-  diffButtonText: {
-    color: '#888',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  
-  diffButtonTextActive: {
-    color: '#0a0e27',
-  },
-  
+  backgroundColor: 'rgba(294,100, 188, 0.64)',   // purple pixel panel
+  borderWidth: 2,
+  borderColor: '#ffffff',                     // neon pink border
+  paddingVertical: 6,
+  paddingHorizontal: 12,
+  marginLeft:10,
+  borderRadius: 6,
+},
+
+diffButtonActive: {
+  backgroundColor: '#ff2dac',                 // neon pink active fill
+  borderColor: '#ffffff',                     // white outline
+  shadowColor: '#ffffff',
+
+},
+
+diffButtonText: {
+  color: '#ffffff',                            // soft neon lavender text
+  fontSize: 12,
+  fontWeight: '800',
+  letterSpacing: 1,
+},
+
+diffButtonTextActive: {
+  color: '#0a0018',                             // dark purple text
+  fontWeight: '900',
+},
+
   // ========== TITLE ==========
-  title: {
-    color: '#00d4ff',
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    letterSpacing: 3,
-    textShadowColor: 'rgba(0, 212, 255, 0.5)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 15,
-  },
+  titleImage: {
+  width: 140,
+  height: 60,
+  resizeMode: 'contain',
+  marginBottom: 15,
+},
+
   
   // ========== CURRENT NUMBER ==========
   currentNumberBox: {
-    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+    backgroundColor: 'rgba(0, 212, 255, 0.12)',
     borderWidth: 2,
-    borderColor: '#00d4ff',
+    borderColor: '#ffffff',
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 20,
@@ -731,13 +733,13 @@ const styles = StyleSheet.create({
   },
   
   currentNumberLabel: {
-    color: '#888',
+    color: '#ffffff',
     fontSize: 10,
     marginBottom: 4,
   },
   
   currentNumber: {
-    color: '#00d4ff',
+    color: '#ffffff',
     fontSize: 36,
     fontWeight: 'bold',
     textShadowColor: 'rgba(0, 212, 255, 0.7)',
@@ -753,7 +755,7 @@ const styles = StyleSheet.create({
   },
   
   statBox: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    backgroundColor: 'rgba(205, 250, 255, 0.15)',
     borderRadius: 8,
     padding: 8,
     alignItems: 'center',
@@ -766,7 +768,7 @@ const styles = StyleSheet.create({
   },
   
   statValue: {
-    color: '#00d4ff',
+    color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -816,28 +818,29 @@ const styles = StyleSheet.create({
   },
   
   // ========== ACTION BUTTON ==========
-  actionButton: {
-    width: '100%',
-    maxWidth: 300,
-    padding: 12,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  
-  startButton: {
-    backgroundColor: '#2ecc71',
-  },
-  
-  newGameButton: {
-    backgroundColor: '#ff4757',
-  },
-  
-  actionButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
+  centerActionButton: {
+  width: '100%',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginTop: 20,
+},
+
+actionButton: {
+  padding: 0,
+  borderRadius: 10,
+  borderColor:'#ffffff',
+  borderWidth:2,
+  alignItems: 'center',
+  justifyContent: 'center',
+ 
+},
+
+actionButtonIcon: {
+  width: 140,   // adjust size as needed
+  height: 60,   // adjust for your image
+  resizeMode: 'contain',
+},
+
   
   // ========== WIN POPUP ==========
   modalOverlay: {
