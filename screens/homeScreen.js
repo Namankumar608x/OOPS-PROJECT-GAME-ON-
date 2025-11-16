@@ -146,6 +146,13 @@ const Playground = ({ navigation }) => {
         screen: "Bingo"
       },
 
+       {
+        id: 9,
+        category: "Arcade",
+        title:"Tetris",
+        bgColor: "#FFB6C1",
+        screen: "Tetris"
+      },
 
     ];
 

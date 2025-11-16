@@ -10,6 +10,7 @@ import TicTacToeScreen from "../screens/tictactoe";
 import Sudoku from "../screens/sudoku";
 import Bingo from "../screens/Bingo";
 import Connect4Game from "../screens/Connect4Game";
+import Tetris from "../screens/Tetris.js";
 
 const Stack = createNativeStackNavigator();
 const StackNavigatorContainer =()=>{
@@ -24,6 +25,7 @@ const StackNavigatorContainer =()=>{
         <Stack.Screen name="TicTacToe" component={TicTacToeScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Sudoku" component={Sudoku} options={{headerShown:false}}/> 
         <Stack.Screen name="Bingo" component={Bingo} options={{headerShown:false}}/> 
+        <Stack.Screen name="Tetris" component={Tetris} options={{headerShown:false}}/> 
     </Stack.Navigator>
   );
 };
