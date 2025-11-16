@@ -1,10 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ImageBackground, Text, TouchableOpacity, View } from 'react-native';
 
-/*==============================
-    TETRIS SHAPES
-==============================*/
 const TETROMINOS = {
   I: {
     shape: [
@@ -57,10 +54,6 @@ const TETROMINOS = {
 };
 
 const TETROMINO_KEYS = Object.keys(TETROMINOS);
-
-/*==============================
-    CLASS: Tetromino
-==============================*/
 class Tetromino {
   constructor(type){
     this.type = type;
@@ -93,23 +86,17 @@ class Tetromino {
     return t;
   }
 }
-
-/*==============================
-      CLASS: TetrisGrid
-==============================*/
 class TetrisGrid {
   constructor(rows = 20, cols = 10){
     this.rows = rows;
     this.cols = cols;
     this.matrix = Array(rows).fill(null).map(()=>Array(cols).fill(null));
   }
-
   clone(){
     const g = new TetrisGrid(this.rows, this.cols);
     g.matrix = this.matrix.map(r => [...r]);
     return g;
   }
-
   isValidPosition(tetromino){
     const { shape, row, col } = tetromino;
     for(let r=0; r<shape.length; r++){
@@ -117,7 +104,6 @@ class TetrisGrid {
         if(shape[r][c]===1){
           const nr = row+r;
           const nc = col+c;
-
           if(nr<0 || nr>=this.rows || nc<0 || nc>=this.cols) return false;
           if(this.matrix[nr][nc] !== null) return false;
         }
@@ -125,7 +111,6 @@ class TetrisGrid {
     }
     return true;
   }
-
   placeTetromino(tetromino){
     const { shape, row, col, color } = tetromino;
     for(let r=0; r<shape.length; r++){
@@ -136,7 +121,6 @@ class TetrisGrid {
       }
     }
   }
-
   clearLines(){
     let cleared = 0;
     for(let r=this.rows-1; r>=0; r--){
@@ -150,18 +134,10 @@ class TetrisGrid {
     return cleared;
   }
 }
-
-/*==============================
-   HELPER: generate new Tetro
-==============================*/
 function getRandomTetromino(){
   const r = Math.floor(Math.random()*TETROMINO_KEYS.length);
   return new Tetromino(TETROMINO_KEYS[r]);
 }
-
-/*==============================
-      REACT COMPONENT
-==============================*/
 const Tetris = () => {
   const [grid,setGrid] = useState(() => new TetrisGrid());
   const [current,setCurrent] = useState(() => getRandomTetromino());
@@ -170,31 +146,23 @@ const Tetris = () => {
   const [level,setLevel] = useState(1);
   const [highScore,setHighScore] = useState(0);
   const [gameOver,setGameOver] = useState(false);
-
   const intervalRef = useRef(null);
-
-  /* Load highscore */
   useEffect(()=>{
     (async()=>{
       const s = await AsyncStorage.getItem('tetrisHighScore');
       if(s) setHighScore(parseInt(s,10));
     })();
   },[]);
-
-  /* Save highscore */
   useEffect(()=>{
     if(score > highScore){
       setHighScore(score);
       AsyncStorage.setItem('tetrisHighScore',score.toString());
     }
   },[score,highScore]);
-
-  /* Start gravity */
   useEffect(()=>{
     startInterval();
     return stopInterval;
   },[current,level,gameOver]);
-
   const startInterval = () => {
     stopInterval();
     if(!gameOver){
@@ -202,34 +170,28 @@ const Tetris = () => {
       intervalRef.current = setInterval(()=>moveDown(), speed);
     }
   };
-
   const stopInterval = () => {
     if(intervalRef.current){
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
   };
-
   const spawnNew = () => {
     const newPiece = next;
     newPiece.row = 0;
     newPiece.col = 3;
-
     if(!grid.isValidPosition(newPiece)){
       setGameOver(true);
       stopInterval();
       return;
     }
-
     setCurrent(newPiece);
     setNext(getRandomTetromino());
   };
-
   const moveDown = () => {
     if(gameOver) return;
     const clone = current.clone();
     clone.row++;
-
     if(grid.isValidPosition(clone)){
       setCurrent(clone);
     } else {
@@ -244,28 +206,24 @@ const Tetris = () => {
       spawnNew();
     }
   };
-
   const moveLeft = () => {
     if(gameOver) return;
     const clone = current.clone();
     clone.col--;
     if(grid.isValidPosition(clone)) setCurrent(clone);
   };
-
   const moveRight = () => {
     if(gameOver) return;
     const clone = current.clone();
     clone.col++;
     if(grid.isValidPosition(clone)) setCurrent(clone);
   };
-
   const rotate = () => {
     if(gameOver) return;
     const clone = current.clone();
     clone.rotate();
     if(grid.isValidPosition(clone)) setCurrent(clone);
   };
-
   const drop = () => {
     if(gameOver) return;
     let clone = current.clone();
@@ -276,7 +234,6 @@ const Tetris = () => {
     setCurrent(clone);
     moveDown();
   };
-
   const handleRestart = () => {
     setGrid(new TetrisGrid());
     setCurrent(getRandomTetromino());
@@ -285,8 +242,6 @@ const Tetris = () => {
     setLevel(1);
     setGameOver(false);
   };
-
-  /* Build display board */
   const displayGrid = grid.clone().matrix.map(r=>[...r]);
   const {shape,row,col,color} = current;
 
@@ -301,146 +256,83 @@ const Tetris = () => {
       }
     }
   }
+return (
+  <ImageBackground
+    source={require("../assets/images/background_main.png")}
+    style={styles.container}
+    resizeMode="cover"
+  >
+    <Text style={styles.title}>Tetris</Text>
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tetris</Text>
-
-      <View style={styles.scoreBox}>
-        <Text style={styles.scoreText}>Score: {score}</Text>
-        <Text style={styles.scoreText}>Level: {level}</Text>
-        <Text style={styles.high}>High: {highScore}</Text>
-      </View>
-
-      <View style={styles.board}>
-        {displayGrid.map((row,i)=>(
-          <View key={i} style={styles.row}>
-            {row.map((cell,j)=>(
-              <View
-                key={j}
-                style={[
-                  styles.cell,
-                  cell && {backgroundColor: cell}
-                ]}
-              />
-            ))}
-          </View>
-        ))}
-      </View>
-
-      <Text style={{marginTop:10,fontSize:16}}>Next:</Text>
-      <View style={{marginVertical:10}}>
-        {next.shape.map((r,i)=>(
-          <View key={i} style={{flexDirection:'row'}}>
-            {r.map((v,j)=>(
-              <View
-                key={j}
-                style={{
-                  width:20,height:20,
-                  margin:1,
-                  backgroundColor: v===1?next.color:'transparent',
-                  borderWidth: v===1?1:0
-                }}
-              />
-            ))}
-          </View>
-        ))}
-      </View>
-
-      <View style={styles.controls}>
-        <TouchableOpacity onPress={moveLeft} style={styles.controlButton}><Text style={styles.ctrlTxt}>◀</Text></TouchableOpacity>
-        <TouchableOpacity onPress={rotate} style={styles.controlButton}><Text style={styles.ctrlTxt}>⟳</Text></TouchableOpacity>
-        <TouchableOpacity onPress={moveRight} style={styles.controlButton}><Text style={styles.ctrlTxt}>▶</Text></TouchableOpacity>
-        <TouchableOpacity onPress={drop} style={styles.controlButton}><Text style={styles.ctrlTxt}>⬇</Text></TouchableOpacity>
-      </View>
-
-      {gameOver && (
-        <View style={styles.overlay}>
-          <Text style={styles.gameOver}>GAME OVER</Text>
-          <TouchableOpacity onPress={handleRestart} style={styles.restartButton}>
-            <Text style={styles.restartText}>RESTART</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+    <View style={styles.scoreBox}>
+      <Text style={styles.scoreText}>Score: {score}</Text>
+      <Text style={styles.scoreText}>Level: {level}</Text>
+      <Text style={styles.high}>High: {highScore}</Text>
     </View>
-  );
-};
 
-/*==============================
-          STYLES
-==============================*/
-const styles = StyleSheet.create({
-  container:{
-    flex:1,
-    alignItems:'center',
-    backgroundColor:'#f5f5f5',
-    paddingTop:40
-  },
-  title:{
-    fontSize:32,
-    fontWeight:'bold',
-    marginBottom:10
-  },
-  scoreBox:{
-    flexDirection:'row',
-    justifyContent:'space-around',
-    width:'80%',
-    marginBottom:20
-  },
-  scoreText:{ fontSize:20, color:'#555' },
-  high:{ fontSize:20, fontWeight:'bold', color:'#ff9800' },
+    <View style={styles.board}>
+      {displayGrid.map((row,i)=>(
+        <View key={i} style={styles.row}>
+          {row.map((cell,j)=>(
+            <View
+              key={j}
+              style={[
+                styles.cell,
+                cell && {backgroundColor: cell}
+              ]}
+            />
+          ))}
+        </View>
+      ))}
+    </View>
 
-  board:{
-    borderWidth:2,
-    borderColor:'#ccc',
-    padding:3,
-    backgroundColor:'#ffffff'
-  },
+    <Text style={{marginTop:10,fontSize:16}}>Next:</Text>
 
-  row:{ flexDirection:'row' },
+    <View style={{marginVertical:10}}>
+      {next.shape.map((r,i)=>(
+        <View key={i} style={{flexDirection:'row'}}>
+          {r.map((v,j)=>(
+            <View
+              key={j}
+              style={{
+                width:20,height:20,
+                margin:1,
+                backgroundColor: v===1?next.color:'transparent',
+                borderWidth: v===1?1:0
+              }}
+            />
+          ))}
+        </View>
+      ))}
+    </View>
 
-  cell:{
-    width:25,
-    height:25,
-    margin:1,
-    backgroundColor:'#eee',
-  },
+    <View style={styles.controls}>
+      <TouchableOpacity onPress={moveLeft} style={styles.controlButton}>
+        <Text style={styles.ctrlTxt}>◀</Text>
+      </TouchableOpacity>
 
-  controls:{
-    flexDirection:'row',
-    marginTop:20
-  },
-  controlButton:{
-    padding:10,
-    backgroundColor:'#ddd',
-    marginHorizontal:10,
-    borderRadius:8
-  },
-  ctrlTxt:{ fontSize:24, fontWeight:'bold' },
+      <TouchableOpacity onPress={rotate} style={styles.controlButton}>
+        <Text style={styles.ctrlTxt}>⟳</Text>
+      </TouchableOpacity>
 
-  overlay:{
-    position:'absolute',
-    top:0,left:0,right:0,bottom:0,
-    backgroundColor:'rgba(0,0,0,0.7)',
-    justifyContent:'center',
-    alignItems:'center'
-  },
-  gameOver:{
-    color:'white',
-    fontSize:40,
-    fontWeight:'bold'
-  },
-  restartButton:{
-    backgroundColor:'#ffc107',
-    padding:15,
-    borderRadius:10,
-    marginTop:20
-  },
-  restartText:{
-    fontSize:24,
-    fontWeight:'bold',
-    color:'#333'
-  }
-});
+      <TouchableOpacity onPress={moveRight} style={styles.controlButton}>
+        <Text style={styles.ctrlTxt}>▶</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={drop} style={styles.controlButton}>
+        <Text style={styles.ctrlTxt}>⬇</Text>
+      </TouchableOpacity>
+    </View>
+
+    {gameOver && (
+      <View style={styles.overlay}>
+        <Text style={styles.gameOver}>GAME OVER</Text>
+        <TouchableOpacity onPress={handleRestart} style={styles.restartButton}>
+          <Text style={styles.restartText}>RESTART</Text>
+        </TouchableOpacity>
+      </View>
+    )}
+  </ImageBackground>
+)};
 
 export default Tetris;
