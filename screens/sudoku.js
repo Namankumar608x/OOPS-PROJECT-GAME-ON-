@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 class SudokuBoard {
   constructor() {
@@ -311,7 +311,7 @@ const SudokuApp = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 18, alignItems: "center", backgroundColor: "#f2f2f2" },
+  container: { flex: 1, padding: StatusBar.currentHeight, alignItems: "center", backgroundColor: "#f2f2f2" },
   title: { fontSize: 28, fontWeight: "700", marginBottom: 10 },
   controlsRow: { flexDirection: "row", marginBottom: 12 },
   controlButton: {
