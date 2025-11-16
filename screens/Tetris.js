@@ -1,10 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-/*==============================
-    TETRIS SHAPES
-==============================*/
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 const TETROMINOS = {
   I: {
     shape: [
@@ -57,10 +53,6 @@ const TETROMINOS = {
 };
 
 const TETROMINO_KEYS = Object.keys(TETROMINOS);
-
-/*==============================
-    CLASS: Tetromino
-==============================*/
 class Tetromino {
   constructor(type){
     this.type = type;
@@ -69,7 +61,6 @@ class Tetromino {
     this.row = 0;
     this.col = 3; 
   }
-
   rotate(){
     const newShape = [];
     const rows = this.shape.length;
@@ -83,7 +74,6 @@ class Tetromino {
     }
     this.shape = newShape;
   }
-
   clone(){
     const t = new Tetromino(this.type);
     t.shape = this.shape.map(r => [...r]);
@@ -93,23 +83,17 @@ class Tetromino {
     return t;
   }
 }
-
-/*==============================
-      CLASS: TetrisGrid
-==============================*/
 class TetrisGrid {
   constructor(rows = 20, cols = 10){
     this.rows = rows;
     this.cols = cols;
     this.matrix = Array(rows).fill(null).map(()=>Array(cols).fill(null));
   }
-
   clone(){
     const g = new TetrisGrid(this.rows, this.cols);
     g.matrix = this.matrix.map(r => [...r]);
     return g;
   }
-
   isValidPosition(tetromino){
     const { shape, row, col } = tetromino;
     for(let r=0; r<shape.length; r++){
@@ -117,7 +101,6 @@ class TetrisGrid {
         if(shape[r][c]===1){
           const nr = row+r;
           const nc = col+c;
-
           if(nr<0 || nr>=this.rows || nc<0 || nc>=this.cols) return false;
           if(this.matrix[nr][nc] !== null) return false;
         }
@@ -125,7 +108,6 @@ class TetrisGrid {
     }
     return true;
   }
-
   placeTetromino(tetromino){
     const { shape, row, col, color } = tetromino;
     for(let r=0; r<shape.length; r++){
@@ -136,7 +118,6 @@ class TetrisGrid {
       }
     }
   }
-
   clearLines(){
     let cleared = 0;
     for(let r=this.rows-1; r>=0; r--){
@@ -150,18 +131,10 @@ class TetrisGrid {
     return cleared;
   }
 }
-
-/*==============================
-   HELPER: generate new Tetro
-==============================*/
 function getRandomTetromino(){
   const r = Math.floor(Math.random()*TETROMINO_KEYS.length);
   return new Tetromino(TETROMINO_KEYS[r]);
 }
-
-/*==============================
-      REACT COMPONENT
-==============================*/
 const Tetris = () => {
   const [grid,setGrid] = useState(() => new TetrisGrid());
   const [current,setCurrent] = useState(() => getRandomTetromino());
@@ -172,29 +145,22 @@ const Tetris = () => {
   const [gameOver,setGameOver] = useState(false);
 
   const intervalRef = useRef(null);
-
-  /* Load highscore */
   useEffect(()=>{
     (async()=>{
       const s = await AsyncStorage.getItem('tetrisHighScore');
       if(s) setHighScore(parseInt(s,10));
     })();
   },[]);
-
-  /* Save highscore */
   useEffect(()=>{
     if(score > highScore){
       setHighScore(score);
       AsyncStorage.setItem('tetrisHighScore',score.toString());
     }
   },[score,highScore]);
-
-  /* Start gravity */
   useEffect(()=>{
     startInterval();
     return stopInterval;
   },[current,level,gameOver]);
-
   const startInterval = () => {
     stopInterval();
     if(!gameOver){
@@ -202,37 +168,32 @@ const Tetris = () => {
       intervalRef.current = setInterval(()=>moveDown(), speed);
     }
   };
-
   const stopInterval = () => {
     if(intervalRef.current){
       clearInterval(intervalRef.current);
       intervalRef.current = null;
     }
   };
-
   const spawnNew = () => {
     const newPiece = next;
     newPiece.row = 0;
     newPiece.col = 3;
-
     if(!grid.isValidPosition(newPiece)){
       setGameOver(true);
       stopInterval();
       return;
     }
-
     setCurrent(newPiece);
     setNext(getRandomTetromino());
   };
-
   const moveDown = () => {
     if(gameOver) return;
     const clone = current.clone();
     clone.row++;
-
     if(grid.isValidPosition(clone)){
       setCurrent(clone);
-    } else {
+    }
+    else {
       const newGrid = grid.clone();
       newGrid.placeTetromino(current);
       const cleared = newGrid.clearLines();
@@ -244,7 +205,6 @@ const Tetris = () => {
       spawnNew();
     }
   };
-
   const moveLeft = () => {
     if(gameOver) return;
     const clone = current.clone();
@@ -276,7 +236,6 @@ const Tetris = () => {
     setCurrent(clone);
     moveDown();
   };
-
   const handleRestart = () => {
     setGrid(new TetrisGrid());
     setCurrent(getRandomTetromino());
@@ -285,8 +244,6 @@ const Tetris = () => {
     setLevel(1);
     setGameOver(false);
   };
-
-  /* Build display board */
   const displayGrid = grid.clone().matrix.map(r=>[...r]);
   const {shape,row,col,color} = current;
 
@@ -301,17 +258,19 @@ const Tetris = () => {
       }
     }
   }
-
-  return (
+  return(
+    <ImageBackground
+    source={require("../assets/images/background_main.png")}
+    style={styles.bg}
+    resizeMode="cover"
+    >
     <View style={styles.container}>
       <Text style={styles.title}>Tetris</Text>
-
       <View style={styles.scoreBox}>
         <Text style={styles.scoreText}>Score: {score}</Text>
         <Text style={styles.scoreText}>Level: {level}</Text>
         <Text style={styles.high}>High: {highScore}</Text>
       </View>
-
       <View style={styles.board}>
         {displayGrid.map((row,i)=>(
           <View key={i} style={styles.row}>
@@ -363,18 +322,21 @@ const Tetris = () => {
         </View>
       )}
     </View>
-  );
+    </ImageBackground>
+  ); 
 };
-
-/*==============================
-          STYLES
-==============================*/
 const styles = StyleSheet.create({
   container:{
     flex:1,
     alignItems:'center',
-    backgroundColor:'#f5f5f5',
+    backgroundColor:"rgba(255,255,255,0.0)",
     paddingTop:40
+  },
+  bg:{
+  flex: 1,
+  resizeMode: "cover",
+  justifyContent: "center",
+  alignItems: "center"
   },
   title:{
     fontSize:32,
@@ -387,14 +349,13 @@ const styles = StyleSheet.create({
     width:'80%',
     marginBottom:20
   },
-  scoreText:{ fontSize:20, color:'#555' },
-  high:{ fontSize:20, fontWeight:'bold', color:'#ff9800' },
-
+  scoreText:{ fontSize:20, color:'#f200ffff' },
+  high:{ fontSize:20, fontWeight:'bold', color:'#f200ffff' },
   board:{
     borderWidth:2,
-    borderColor:'#ccc',
+    borderColor:'#9900ffff',
     padding:3,
-    backgroundColor:'#ffffff'
+    backgroundColor:'#ffffffff'
   },
 
   row:{ flexDirection:'row' },
@@ -403,7 +364,7 @@ const styles = StyleSheet.create({
     width:25,
     height:25,
     margin:1,
-    backgroundColor:'#eee',
+    backgroundColor:'#d9d9d9ff',
   },
 
   controls:{
@@ -412,7 +373,8 @@ const styles = StyleSheet.create({
   },
   controlButton:{
     padding:10,
-    backgroundColor:'#ddd',
+    color:'white',
+    backgroundColor:'#9900ffff',
     marginHorizontal:10,
     borderRadius:8
   },
@@ -431,7 +393,7 @@ const styles = StyleSheet.create({
     fontWeight:'bold'
   },
   restartButton:{
-    backgroundColor:'#ffc107',
+    backgroundColor:'#9900ffff',
     padding:15,
     borderRadius:10,
     marginTop:20
