@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'react-native';
 
-
-import {Pressable,ScrollView, StyleSheet, Text,View,ActivityIndicator,Animated,Dimensions, Platform,} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator, Animated, Dimensions, Platform, ImageBackground, StatusBar, } from 'react-native';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
 
 const getCardWidth = () => {
   if (isWeb) {
-   const totalGap = 16 * 2; 
-    return Math.min((width - totalGap - 100) / 3, 280);                    
+    const totalGap = 16 * 2;
+    return Math.min((width - totalGap - 100) / 3, 280);
   }
-  return (width - 60) / 2;       
+  return (width - 60) / 2;
 };
 
 const GameCard = ({ item, index, onPress }) => {
@@ -49,35 +49,38 @@ const GameCard = ({ item, index, onPress }) => {
   const cardWidth = getCardWidth();
 
   return (
-    <Animated.View style={[styles.cardContainer, { 
-      transform: [{ scale: scaleAnim }],
-      width: cardWidth,
-    }]}>
-      <Pressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        style={styles.card}>
-        <View style={[styles.cardBackground, { backgroundColor: item.bgColor }]}>
-          <Text style={styles.gameIcon}>{item.icon}</Text>
-          
-          <View style={styles.cardGradient}>
-            <View style={styles.cardContent}>
-              <View style={styles.cardInfo}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardCategory}>{item.category}</Text>
-              </View>
-              
-              <View style={styles.playButtonContainer}>
-                <View style={[styles.playButton, pressed && styles.playButtonPressed]}>
-                  <Icon name="play-circle" size={40} color="#4ECDC4" style={styles.playIcon} />
+    <ImageBackground source={require("../assets/images/personimage.png")}  style={{borderRadius:"25%",overflow:"hidden"}}>
+      <Animated.View style={[styles.cardContainer, {
+        transform: [{ scale: scaleAnim }],
+        width: cardWidth,
+
+      }]}>
+        <Pressable
+          onPress={onPress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          style={styles.card}>
+          <View style={[styles.cardBackground, { backgroundImage: require("../assets/images/logo.jpg") }]}>
+            <Text style={styles.gameIcon}>{item.icon}</Text>
+
+            <View style={styles.cardGradient}>
+              <View style={styles.cardContent}>
+                <View style={styles.cardInfo}>
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                  <Text style={styles.cardCategory}>{item.category}</Text>
+                </View>
+
+                <View style={styles.playButtonContainer}>
+                  <View style={[styles.playButton, pressed && styles.playButtonPressed]}>
+                    <Icon name="play-circle" size={40} color="#4ECDC4" style={styles.playIcon} />
+                  </View>
                 </View>
               </View>
             </View>
           </View>
-        </View>
-      </Pressable>
-    </Animated.View>
+        </Pressable>
+      </Animated.View>
+    </ImageBackground>
   );
 };
 
@@ -92,7 +95,7 @@ const Playground = ({ navigation }) => {
         id: 1,
         title: "2048",
         category: "Brain Game",
-        icon: "🎯",
+
         bgColor: "#FF6B6B",
         screen: "2048",
       },
@@ -100,7 +103,7 @@ const Playground = ({ navigation }) => {
         id: 2,
         title: "Blockoduko",
         category: "Puzzle",
-        icon: "🧩",
+        
         bgColor: "#4ECDC4",
         screen: "Blockoduko",
       },
@@ -108,7 +111,7 @@ const Playground = ({ navigation }) => {
         id: 3,
         title: "TicTacToe",
         category: "Arcade",
-        icon: "👾",
+        
         bgColor: "#FFE66D",
         screen: "TicTacToe",
       },
@@ -116,7 +119,7 @@ const Playground = ({ navigation }) => {
         id: 4,
         title: "Snake Game",
         category: "Classic",
-        icon: "🐍",
+        
         bgColor: "#95E1D3",
         screen: "SnakeGame",
       },
@@ -124,31 +127,31 @@ const Playground = ({ navigation }) => {
         id: 5,
         title: "Dino Jump",
         category: "Action",
-        icon: "🦖",
+        
         bgColor: "#A8E6CF",
         screen: "DinoJump",
       },
       {
         id: 6,
         category: "Arcade",
-        icon: "🐦", 
+        
         bgColor: "#FFD166",
         screen: "FlappyBird",
       },
-            {
-  id:7,
-  category: "Puzzle",
-  icon: "🔢",
-  bgColor: "#FFD166",
-  screen: "Sudoku"
-},
-{
-  id: 8,
-  category: "Bingo",
-  icon: "🧮",
-  bgColor: "#FFB6C1", 
-  screen: "Bingo"
-},
+      {
+        id: 7,
+        category: "Puzzle",
+        
+        bgColor: "#FFD166",
+        screen: "Sudoku"
+      },
+      {
+        id: 8,
+        category: "Bingo",
+        
+        bgColor: "#FFB6C1",
+        screen: "Bingo"
+      },
 
 
     ];
@@ -171,7 +174,8 @@ const Playground = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.background}>
+
+    <ImageBackground source={require("../assets/images/background_main.png")} style={styles.background} screenOptions={{ headerShown: false }}>
       <View style={styles.backgroundPattern}>
         <View style={[styles.gradientCircle, styles.circle1]} />
         <View style={[styles.gradientCircle, styles.circle2]} />
@@ -189,17 +193,17 @@ const Playground = ({ navigation }) => {
       </View>
 
       <View style={styles.overlay}>
-  
+
         <View style={styles.header}>
           <View style={styles.logoContainer}>
-        
-            <Text style={styles.logoText}>GAME ON</Text>
+
+            <Image source={require("../assets/images/logo.jpg")} style={[{ width: "95%", height: "50" }, styles.logoText]}></Image>
           </View>
-          
-          <Pressable style={styles.profileButton}>
+
+          {/* <Pressable style={styles.profileButton}>
              <Ionicons name="person-circle-outline" size={28} color="#cecdcdff" />
 
-          </Pressable>
+          </Pressable> */}
         </View>
 
         {loading ? (
@@ -209,26 +213,26 @@ const Playground = ({ navigation }) => {
           </View>
         ) : (
           <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
-            <ScrollView 
+            <ScrollView
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
-              <View style={styles.titleContainer}>
+              {/* <View style={styles.titleContainer}>
                 <Text style={styles.mainTitle}>Play & Enjoy</Text>
                 <Text style={styles.subtitle}>Choose your favorite game</Text>
-              </View>
-              
+              </View> */}
+
               <View style={styles.gamesGrid}>
                 {data.map((item, index) => (
-                  <GameCard 
-                    key={item.id} 
-                    item={item} 
+                  <GameCard
+                    key={item.id}
+                    item={item}
                     index={index}
                     onPress={() => handleGamePress(item.screen)}
                   />
                 ))}
               </View>
-              
+
               <View style={styles.footer}>
                 <Text style={styles.footerText}>About Us</Text>
               </View>
@@ -236,7 +240,7 @@ const Playground = ({ navigation }) => {
           </Animated.View>
         )}
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
@@ -245,7 +249,7 @@ export default Playground;
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: "#000019ff",
+    backgroundImage: require("../assets/images/background_main.png")
   },
   backgroundPattern: {
     position: "absolute",
@@ -315,14 +319,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: isWeb ? 20 : 50,
+    paddingTop: StatusBar.currentHeight,
     paddingHorizontal: 20,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   logoContainer: {
     flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
     gap: 10,
+    paddingTop: "10"
   },
   logoIcon: {
     fontSize: 28,
@@ -477,6 +483,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
-export const unstable_settings={
-  headerShown:false,
+export const unstable_settings = {
+  headerShown: false,
 }

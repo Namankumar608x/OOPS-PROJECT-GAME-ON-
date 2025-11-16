@@ -14,15 +14,15 @@ const Stack = createNativeStackNavigator();
 const StackNavigatorContainer =()=>{
     return (
     <Stack.Navigator >
-        <Stack.Screen name="Home" component={homeScreen} />
-        <Stack.Screen name="2048" component={game2048} />
-        <Stack.Screen name="Blockoduko" component={Blockoduko}/>
-         <Stack.Screen name="SnakeGame" component={SnakeGame}/>
-        <Stack.Screen name="PacmanScreen" component={PacmanScreen}/>
-        <Stack.Screen name="DinoJump" component={DinoJumpScreen}/> 
-        <Stack.Screen name="TicTacToe" component={TicTacToeScreen}/>
-        <Stack.Screen name="Sudoku" component={Sudoku}/> 
-        <Stack.Screen name="Bingo" component={Bingo}/> 
+        <Stack.Screen name="Home" component={homeScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="2048" component={game2048} options={{headerShown:false}}/>
+        <Stack.Screen name="Blockoduko" component={Blockoduko} options={{headerShown:false}}/>
+         <Stack.Screen name="SnakeGame" component={SnakeGame} options={{headerShown:false}}/>
+        <Stack.Screen name="PacmanScreen" component={PacmanScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="DinoJump" component={DinoJumpScreen} options={{headerShown:false}}/> 
+        <Stack.Screen name="TicTacToe" component={TicTacToeScreen} options={{headerShown:false}}/>
+        <Stack.Screen name="Sudoku" component={Sudoku} options={{headerShown:false}}/> 
+        <Stack.Screen name="Bingo" component={Bingo} options={{headerShown:false}}/> 
     </Stack.Navigator>
     )
 }
