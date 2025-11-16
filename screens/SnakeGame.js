@@ -105,11 +105,20 @@ class SnakeSegment extends GameObject {
   #isHead;
   #color;
 
-  constructor(x, y, isHead = false) {
-    super(x, y); // Call parent constructor (Inheritance)
-    this.#isHead = isHead;
-    this.#color = isHead ? '#a78bfa' : '#8b5cf6';
-  }
+constructor(x, y, isHead = false) {
+  super(x, y);
+  this.#isHead = isHead;
+
+  // OPTION: use an image OR a color
+  this.image = isHead
+    ? require('../assets/images/snake_head.png')   // FIXED PATH
+    : null;
+
+  this.#color = isHead
+    ? null
+    : '#8b5cf6';
+}
+
 
   // Getter and Setter (Encapsulation)
   get isHead() {
@@ -525,9 +534,9 @@ export default function SnakeGame() {
 
   return (
     <ImageBackground
-      source={{
-        uri: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb',
-      }}
+    
+      source={require("../assets/images/background(1).png")}
+      
       style={styles.background}
     >
       <View style={styles.container}>
@@ -550,27 +559,25 @@ export default function SnakeGame() {
           </View>
 
           {/* High Score and Play Button */}
-          <View style={styles.rightSection}>
-            <View style={styles.highScoreSection}>
-              <Text style={styles.highScoreLabel}>HIGH SCORE</Text>
-              <Text style={styles.highScoreValue}>
-                {Math.max(highScore, gameState.score)}
-              </Text>
-            </View>
+         {/* High Score and Play Button in a Row */}
+<View style={styles.rightSectionRow}>
 
-            <TouchableOpacity
-              onPress={handleStart}
-              disabled={showGameOver}
-              style={[
-                styles.playButton,
-                showGameOver && styles.playButtonDisabled,
-              ]}
-            >
-              <Text style={styles.playButtonText}>
-                {gameState.isRunning ? '⏸' : '▶'}
-              </Text>
-            </TouchableOpacity>
-          </View>
+  <TouchableOpacity
+    onPress={handleStart}
+    disabled={showGameOver}
+    style={[
+      styles.playButton,
+      showGameOver && styles.playButtonDisabled,
+    ]}
+  >
+    <Text style={styles.playButtonText}>
+      {gameState.isRunning ? 'PAUSE' : 'PLAY'}
+    </Text>
+  </TouchableOpacity>
+
+</View>
+
+
         </View>
 
         {/* Game Board */}
@@ -637,7 +644,7 @@ export default function SnakeGame() {
                 },
               ]}
             >
-              {segment.isHead && <Text style={styles.snakeEmoji}>🐍</Text>}
+              {segment.isHead && <Text style={styles.snakeEmoji}>😈</Text>}
             </View>
           ))}
 
@@ -654,7 +661,7 @@ export default function SnakeGame() {
 
                 {gameState.score === highScore && gameState.score > 0 && (
                   <Text style={styles.newHighScore}>
-                    🏆 NEW HIGH SCORE! 🏆
+                    🏆 WELL PLAYED 🏆
                   </Text>
                 )}
 
@@ -731,9 +738,13 @@ export default function SnakeGame() {
           </View>
 
           {/* Reset Button */}
-          <TouchableOpacity onPress={handleReset} style={styles.resetButton}>
-            <Text style={styles.resetButtonText}>RESET</Text>
-          </TouchableOpacity>
+         <TouchableOpacity onPress={handleReset} style={styles.resetButton}>
+  <Image
+    source={require('../assets/images/snake_game_images/reset.png')}
+    style={styles.resetIcon}
+  />
+</TouchableOpacity>
+
         </View>
       </View>
     </ImageBackground>
@@ -783,19 +794,24 @@ const styles = StyleSheet.create({
     color: '#ec4899',
   },
 
-  // Title section (center)
   titleSection: {
     alignItems: 'center',
   },
   logo: {
-    width: 100,
-    height: 30,
-    marginBottom: 4,
+    width: 200,
+    height: 80,
+    marginBottom: 2,
+    marginLeft:12,
+
   },
   levelText: {
     fontSize: 11,
-    color: '#e0e0ff',
-    opacity: 0.8,
+    color: '#ff69b4',
+    borderWidth:2,
+    padding:3,
+    marginLeft:5,
+    borderColor:'#ffffff',
+  
   },
 
   // Right section (high score + play button)
@@ -804,26 +820,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
   },
-  highScoreSection: {
-    alignItems: 'flex-end',
-  },
-  highScoreLabel: {
-    fontSize: 11,
-    color: '#e0e0ff',
-    opacity: 0.7,
-    marginBottom: 4,
-  },
-  highScoreValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#8b5cf6',
-  },
 
   // Play/Pause button
   playButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#7c3aed',
+    width: 70,
+    height: 38,
+    borderWidth: 2,
+    borderColor:'#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 4,
@@ -843,7 +846,7 @@ const styles = StyleSheet.create({
     height: GRID_SIZE * CELL_SIZE,
     backgroundColor: '#0f0f2e',
     borderWidth: 3,
-    borderColor: '#5b4fb5',
+    borderColor: '#ffffff',
     borderRadius: 4,
     overflow: 'hidden',
     position: 'relative',
@@ -853,7 +856,7 @@ const styles = StyleSheet.create({
   gridLine: {
     position: 'absolute',
     backgroundColor: '#2d2d5f',
-    opacity: 0.3,
+   
   },
 
   // Food
@@ -936,6 +939,7 @@ const styles = StyleSheet.create({
   controls: {
     marginTop: 32,
     alignItems: 'center',
+    
   },
   controlRow: {
     flexDirection: 'row',
@@ -946,17 +950,19 @@ const styles = StyleSheet.create({
   controlButton: {
     width: 48,
     height: 48,
-    backgroundColor: '#7c3aed',
+    backgroundColor: '#a020f0',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 4,
+     borderWidth: 2.5, 
+    borderColor: '#ffb6e6',
   },
   controlButtonDisabled: {
     opacity: 0.5,
   },
   controlButtonText: {
     fontSize: 20,
-    color: '#fbbf24',
+    color: '#ffffff',
     fontWeight: 'bold',
   },
   controlButtonSpacer: {
@@ -965,15 +971,25 @@ const styles = StyleSheet.create({
   },
 
   // Reset button
-  resetButton: {
-    width: 128,
-    height: 40,
-    backgroundColor: '#10b981',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 4,
-    marginTop: 12,
-  },
+ resetButton: {
+  width: 100,
+  height: 35,
+  backgroundColor: '#12022b',   // updated
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 4,
+  marginTop: 12,
+  marginLeft:4,
+  borderWidth: 1,               // added
+  borderColor: '#ffffff',       // added (white border)
+},
+
+  resetIcon: {
+  width: 70,
+  height: 35,
+  resizeMode: 'contain',
+},
+
   resetButtonText: {
     fontSize: 14,
     fontWeight: 'bold',
