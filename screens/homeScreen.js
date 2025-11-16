@@ -132,11 +132,11 @@ const Playground = ({ navigation }) => {
       },
       {
         id: 6,
-        title: "Pac-Man",
+        title: "Connect4",
         category: "Arcade",
         
         bgColor: "#FFD166",
-        screen: "PacmanGame",  
+        screen: "Connect4Game",  
       },
       {
         id: 7,
