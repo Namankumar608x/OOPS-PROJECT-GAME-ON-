@@ -15,7 +15,7 @@ const getCardWidth = () => {
   return (width - 60) / 2;
 };
 
-const GameCard = ({ item, index, onPress }) => {
+const GameCard = ({ item, index, onPress,add}) => {
   const [scaleAnim] = useState(new Animated.Value(0));
   const [pressed, setPressed] = useState(false);
 
@@ -46,9 +46,9 @@ const GameCard = ({ item, index, onPress }) => {
   };
 
   const cardWidth = getCardWidth();
-
+  console.log(item.title);
   return (
-    <ImageBackground source={require("../assets/images/personimage.png")}  style={{borderRadius:"25%",overflow:"hidden"}}>
+    <ImageBackground src={`../assets/images/${item.title}.png`}  style={{borderRadius:"25%",overflow:"hidden"}}>
       <Animated.View style={[styles.cardContainer, {
         transform: [{ scale: scaleAnim }],
         width: cardWidth,
@@ -87,78 +87,82 @@ const Playground = ({ navigation }) => {
         id: 1,
         title: "2048",
         category: "Brain Game",
-
+        add:"../assets/images/2048_bg.png",
         bgColor: "#FF6B6B",
         screen: "2048",
       },
-      {
-        id: 2,
-        title: "Blockoduko",
-        category: "Puzzle",
-        
-        bgColor: "#4ECDC4",
-        screen: "Blockoduko",
-      },
-      {
-        id: 3,
-        title: "TicTacToe",
-        category: "Arcade",
-        
-        bgColor: "#FFE66D",
-        screen: "TicTacToe",
-      },
-      {
-        id: 4,
-        title: "Snake Game",
-        category: "Classic",
-        
-        bgColor: "#95E1D3",
-        screen: "SnakeGame",
-      },
-      {
-        id: 5,
-        title: "Dino Jump",
-        category: "Action",
-        
-        bgColor: "#A8E6CF",
-        screen: "DinoJump",
-      },
-      {
-        id: 6,
-        title: "Connect4",
-        category: "Arcade",
-        
-        bgColor: "#FFD166",
-        screen: "Connect4Game",  
-      },
-      {
-        id: 7,
-        title: "Sudoku",
-        category: "Puzzle",
-        bgColor: "#FFD166",
-        screen: "Sudoku"
-      },
-      {
-        id: 8,
-        category: "Bingo",
-        title:"Speedy Bingo",
-        bgColor: "#FFB6C1",
-        screen: "Bingo"
-      },
+      // {
+      //   id: 2,
+      //   title: "Blockoduko",
+      //   category: "Puzzle",
+      //   add:"../assets/images/2048_bg.png",
+      //   bgColor: "#4ECDC4",
+      //   screen: "Blockoduko",
+      // },
+      // {
+      //   id: 3,
+      //   title: "TicTacToe",
+      //   category: "Arcade",
+      //   add:"../assets/images/2048_bg.png",
+      //   bgColor: "#FFE66D",
+      //   screen: "TicTacToe",
+      // },
+      // {
+      //   id: 4,
+      //   title: "Snake Game",
+      //   category: "Classic",
+      //   add:"../assets/images/2048_bg.png",
+      //   bgColor: "#95E1D3",
+      //   screen: "SnakeGame",
+      // },
+      // {
+      //   id: 5,
+      //   title: "Dino Jump",
+      //   category: "Action",
+      //   add:"../assets/images/2048_bg.png",
+      //   bgColor: "#A8E6CF",
+      //   screen: "DinoJump",
+      // },
+      // {
+      //   id: 6,
+      //   title: "Connect4",
+      //   category: "Arcade",
+      //   add:"../assets/images/2048_bg.png",
+      //   bgColor: "#FFD166",
+      //   screen: "Connect4Game",  
+      // },
+      // {
+      //   id: 7,
+      //   title: "Sudoku",
+      //   category: "Puzzle",
+      //   add:"../assets/images/2048_bg.png",
+      //   bgColor: "#FFD166",
+      //   screen: "Sudoku"
+      // },
+      // {
+      //   id: 8,
+      //   category: "Bingo",
+      //   title:"Speedy Bingo",
+      //   add:"../assets/images/2048_bg.png",
+      //   bgColor: "#FFB6C1",
+      //   screen: "Bingo"
+      // },
 
-       {
-        id: 9,
-        category: "Arcade",
-        title:"Tetris",
-        bgColor: "#FFB6C1",
-        screen: "Tetris"
-      },
-      {id:10,
-        category:"flappy bird",
-        title:"Flappy Bird",
-        bgColor:"#87CEEB",
-        screen:"FlappyBird"
-      }
+      //  {
+      //   id: 9,
+      //   category: "Arcade",
+      //   title:"Tetris",
+      //   bgColor: "#FFB6C1",
+      //   add:"../assets/images/2048_bg.png",
+      //   screen: "Tetris"
+      // },
+      // {id:10,
+      //   category:"flappy bird",
+      //   title:"Flappy Bird",
+      //   bgColor:"#87CEEB",
+      //   add:"../assets/images/2048_bg.png",
+      //   screen:"FlappyBird"
+      // }
 
     ];
 
