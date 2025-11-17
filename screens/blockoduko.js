@@ -361,9 +361,9 @@ const styles = StyleSheet.create({
     width: '80%',
     marginBottom: 20,
   },
-  score: { fontSize: 24, color:'#9900ffff' },
-  highScore: { fontSize: 24, color: '#9900ffff', fontWeight: 'bold' },
-  multiplier: { fontSize: 24, color: '#9900ffff', fontWeight: 'bold' },
+  score: { fontSize: 12, color:'#9900ffff' },
+  highScore: { fontSize: 12, color: '#9900ffff', fontWeight: 'bold' },
+  multiplier: { fontSize: 12, color: '#9900ffff', fontWeight: 'bold' },
 
   instructions: { marginTop: 20, fontSize: 16, color: '#eee' },
 
