@@ -115,7 +115,6 @@ const Playground = ({ navigation }) => {
         bgColor: "#FFB6C1",
         screen: "Bingo"
       },
-      
       {
         id: 5,
         title: "Dino Jump",
