@@ -13,9 +13,7 @@ const GRID_SIZE = 20;
 const CELL_SIZE = 15;
 const INITIAL_SPEED = 200;
 
-// ========================================
-// BASE CLASS - GameObject (Parent Class)
-// ========================================
+
 class GameObject {
   #x;
   #y;
@@ -25,7 +23,6 @@ class GameObject {
     this.#y = y;
   }
 
-  // Getter methods (Encapsulation)
   get x() {
     return this.#x;
   }
@@ -34,7 +31,7 @@ class GameObject {
     return this.#y;
   }
 
-  // Setter methods (Encapsulation)
+
   set x(value) {
     this.#x = value;
   }
@@ -43,33 +40,28 @@ class GameObject {
     this.#y = value;
   }
 
-  // Public method
+
   getPosition() {
     return { x: this.#x, y: this.#y };
   }
 
-  // Method to be overridden by child classes (Polymorphism)
   render() {
     throw new Error('ERROR! RENDER SHOULD BE IMPLEMENTED BY SUBCLASS');
   }
 }
 
-// ========================================
-// CHILD CLASS - Food (Inheritance from GameObject)
-// ========================================
 class Food extends GameObject {
   #type;
   #points;
   #color;
 
   constructor(x, y, type = 'normal') {
-    super(x, y); // Call parent constructor (Inheritance)
+    super(x, y); 
     this.#type = type;
     this.#points = type === 'special' ? 5 : 1;
     this.#color = type === 'special' ? '#fbbf24' : '#ef4444';
   }
 
-  // Getter methods (Encapsulation)
   get type() {
     return this.#type;
   }
@@ -82,7 +74,6 @@ class Food extends GameObject {
     return this.#color;
   }
 
-  // Override parent method (Polymorphism)
   render() {
     return {
       position: this.getPosition(),
@@ -92,15 +83,11 @@ class Food extends GameObject {
     };
   }
 
-  // Check if food is eaten
   isEatenBy(snakeHead) {
     return this.x === snakeHead.x && this.y === snakeHead.y;
   }
 }
 
-// ========================================
-// CHILD CLASS - SnakeSegment (Inheritance from GameObject)
-// ========================================
 class SnakeSegment extends GameObject {
   #isHead;
   #color;
@@ -109,9 +96,8 @@ constructor(x, y, isHead = false) {
   super(x, y);
   this.#isHead = isHead;
 
-  // OPTION: use an image OR a color
   this.image = isHead
-    ? require('../assets/images/snake_head.png')   // FIXED PATH
+    ? require('../assets/images/snake_head.png')
     : null;
 
   this.#color = isHead
@@ -119,8 +105,6 @@ constructor(x, y, isHead = false) {
     : '#8b5cf6';
 }
 
-
-  // Getter and Setter (Encapsulation)
   get isHead() {
     return this.#isHead;
   }
@@ -134,7 +118,6 @@ constructor(x, y, isHead = false) {
     return this.#color;
   }
 
-  // Override parent method (Polymorphism)
   render() {
     return {
       position: this.getPosition(),
@@ -145,9 +128,6 @@ constructor(x, y, isHead = false) {
   }
 }
 
-// ========================================
-// SNAKE CLASS - Manages snake behavior
-// ========================================
 class Snake {
   #segments;
   #direction;
@@ -160,7 +140,6 @@ class Snake {
     this.#nextDirection = { x: 1, y: 0 };
     this.#growing = false;
 
-    // Create initial snake segments
     for (let i = 0; i < initialLength; i++) {
       this.#segments.push(
         new SnakeSegment(
@@ -172,7 +151,6 @@ class Snake {
     }
   }
 
-  // Getter methods (Encapsulation)
   get head() {
     return this.#segments[0];
   }
@@ -189,7 +167,6 @@ class Snake {
     return this.#nextDirection;
   }
 
-  // Set direction (prevent 180-degree turns)
   setDirection(newDirection) {
     if (
       newDirection.x !== -this.#direction.x ||
@@ -199,36 +176,29 @@ class Snake {
     }
   }
 
-  // Mark snake to grow on next move
   grow() {
     this.#growing = true;
   }
 
-  // Move snake forward
   move() {
     this.#direction = this.#nextDirection;
 
-    // Create new head
     const newHead = new SnakeSegment(
       this.head.x + this.#direction.x,
       this.head.y + this.#direction.y,
       true
     );
 
-    // Update old head
     this.#segments[0].isHead = false;
 
-    // Add new head to front
     this.#segments.unshift(newHead);
 
-    // Remove tail if not growing
     if (!this.#growing) {
       this.#segments.pop();
     }
     this.#growing = false;
   }
 
-  // Check if snake hit itself
   checkSelfCollision() {
     for (let i = 1; i < this.#segments.length; i++) {
       if (
@@ -241,7 +211,6 @@ class Snake {
     return false;
   }
 
-  // Check if snake hit wall
   checkWallCollision() {
     return (
       this.head.x < 0 ||
@@ -251,15 +220,11 @@ class Snake {
     );
   }
 
-  // Render all segments
   render() {
     return this.#segments.map((segment) => segment.render());
   }
 }
 
-// ========================================
-// GAME MANAGER CLASS - Controls entire game
-// ========================================
 class GameManager {
   #snake;
   #food;
@@ -278,7 +243,6 @@ class GameManager {
     this.spawnFood();
   }
 
-  // Getter methods (Encapsulation)
   get snake() {
     return this.#snake;
   }
@@ -303,7 +267,6 @@ class GameManager {
     return this.#level;
   }
 
-  // Game state methods
   start() {
     this.#isRunning = true;
   }
@@ -312,7 +275,6 @@ class GameManager {
     this.#isRunning = false;
   }
 
-  // Spawn food at random position
   spawnFood() {
     let x, y;
     do {
@@ -324,7 +286,6 @@ class GameManager {
     this.#food = new Food(x, y, isSpecial ? 'special' : 'normal');
   }
 
-  // Update game state
   update() {
     if (!this.#isRunning) return { gameOver: false };
 
@@ -332,7 +293,6 @@ class GameManager {
     const nextX = this.#snake.head.x + dir.x;
     const nextY = this.#snake.head.y + dir.y;
 
-    // Check wall collision
     if (
       nextX < 0 ||
       nextX >= GRID_SIZE ||
@@ -343,7 +303,6 @@ class GameManager {
       return { gameOver: true };
     }
 
-    // Check self collision
     for (let i = 0; i < this.#snake.body.length; i++) {
       if (
         nextX === this.#snake.body[i].x &&
@@ -354,10 +313,8 @@ class GameManager {
       }
     }
 
-    // Move snake
     this.#snake.move();
 
-    // Check if food eaten
     if (this.#food.isEatenBy(this.#snake.head)) {
       this.#score += this.#food.points;
       this.#snake.grow();
@@ -368,13 +325,11 @@ class GameManager {
     return { gameOver: false };
   }
 
-  // Private method to update level and speed
   #updateLevel() {
     this.#level = Math.floor(this.#score / 10) + 1;
     this.#speed = Math.max(50, INITIAL_SPEED - (this.#level - 1) * 10);
   }
 
-  // Reset game
   reset() {
     this.#snake = new Snake();
     this.#score = 0;
@@ -385,9 +340,6 @@ class GameManager {
   }
 }
 
-// ========================================
-// STORAGE MANAGER CLASS - Handles data persistence
-// ========================================
 class StorageManager {
   #storageKey;
 
@@ -395,7 +347,6 @@ class StorageManager {
     this.#storageKey = storageKey;
   }
 
-  // Save high score
   async saveHighScore(score) {
     try {
       await AsyncStorage.setItem(this.#storageKey, score.toString());
@@ -406,7 +357,6 @@ class StorageManager {
     }
   }
 
-  // Load high score
   async loadHighScore() {
     try {
       const score = await AsyncStorage.getItem(this.#storageKey);
@@ -417,7 +367,6 @@ class StorageManager {
     }
   }
 
-  // Clear high score
   async clearHighScore() {
     try {
       await AsyncStorage.removeItem(this.#storageKey);
@@ -429,9 +378,7 @@ class StorageManager {
   }
 }
 
-// ========================================
-// MAIN COMPONENT
-// ========================================
+
 export default function SnakeGame() {
   const [gameState, setGameState] = useState(null);
   const [renderTrigger, setRenderTrigger] = useState(0);
@@ -441,12 +388,11 @@ export default function SnakeGame() {
   const gameManagerRef = useRef(null);
   const storageManagerRef = useRef(null);
 
-  // Initialize storage manager
   useEffect(() => {
     storageManagerRef.current = new StorageManager();
   }, []);
 
-  // Load high score
+
   useEffect(() => {
     const loadHighScore = async () => {
       if (storageManagerRef.current) {
@@ -457,7 +403,7 @@ export default function SnakeGame() {
     loadHighScore();
   }, []);
 
-  // Save high score when game ends
+
   useEffect(() => {
     const saveHighScore = async () => {
       if (
@@ -477,13 +423,13 @@ export default function SnakeGame() {
     saveHighScore();
   }, [showGameOver, gameState, highScore]);
 
-  // Initialize game
+
   useEffect(() => {
     gameManagerRef.current = new GameManager();
     setGameState(gameManagerRef.current);
   }, []);
 
-  // Game loop
+
   useEffect(() => {
     if (!gameState?.isRunning) return;
 
@@ -498,7 +444,7 @@ export default function SnakeGame() {
     return () => clearInterval(interval);
   }, [gameState?.isRunning, gameState?.speed, renderTrigger]);
 
-  // Handle direction change
+
   const handleDirection = (direction) => {
     if (gameState && !showGameOver) {
       gameState.snake.setDirection(direction);
@@ -509,7 +455,7 @@ export default function SnakeGame() {
     }
   };
 
-  // Handle start/pause
+
   const handleStart = () => {
     if (gameState && !showGameOver) {
       if (gameState.isRunning) {
@@ -521,7 +467,7 @@ export default function SnakeGame() {
     }
   };
 
-  // Handle reset
+
   const handleReset = () => {
     if (gameState) {
       gameState.reset();
@@ -540,15 +486,15 @@ export default function SnakeGame() {
       style={styles.background}
     >
       <View style={styles.container}>
-        {/* Header with Score and Controls */}
+        
         <View style={styles.header}>
-          {/* Score Section */}
+      
           <View style={styles.scoreSection}>
             <Text style={styles.scoreLabel}>SCORE</Text>
             <Text style={styles.scoreValue}>{gameState.score}</Text>
           </View>
 
-          {/* Title Section */}
+        
           <View style={styles.titleSection}>
             <Image
               source={require('../assets/images/snakelogo.png')}
@@ -558,8 +504,6 @@ export default function SnakeGame() {
             <Text style={styles.levelText}>Level {gameState.level}</Text>
           </View>
 
-          {/* High Score and Play Button */}
-         {/* High Score and Play Button in a Row */}
 <View style={styles.rightSectionRow}>
 
   <TouchableOpacity
@@ -579,10 +523,8 @@ export default function SnakeGame() {
 
 
         </View>
-
-        {/* Game Board */}
         <View style={styles.gameBoard}>
-          {/* Grid Lines */}
+          
           {Array.from({ length: GRID_SIZE + 1 }).map((_, i) => (
             <React.Fragment key={`grid-${i}`}>
               <View
@@ -610,7 +552,7 @@ export default function SnakeGame() {
             </React.Fragment>
           ))}
 
-          {/* Food */}
+         
           {gameState.food && (
             <View
               style={[
@@ -627,7 +569,7 @@ export default function SnakeGame() {
             />
           )}
 
-          {/* Snake */}
+       
           {gameState.snake.render().map((segment, idx) => (
             <View
               key={idx}
@@ -648,7 +590,6 @@ export default function SnakeGame() {
             </View>
           ))}
 
-          {/* Game Over Overlay */}
           {showGameOver && (
             <View style={styles.gameOverOverlay}>
               <View style={styles.gameOverBox}>
@@ -680,9 +621,8 @@ export default function SnakeGame() {
           )}
         </View>
 
-        {/* Control Buttons */}
         <View style={styles.controls}>
-          {/* Up Button */}
+    
           <View style={styles.controlRow}>
             <TouchableOpacity
               onPress={() => handleDirection({ x: 0, y: -1 })}
@@ -696,7 +636,7 @@ export default function SnakeGame() {
             </TouchableOpacity>
           </View>
 
-          {/* Left, Right Buttons */}
+        
           <View style={styles.controlRow}>
             <TouchableOpacity
               onPress={() => handleDirection({ x: -1, y: 0 })}
@@ -723,7 +663,6 @@ export default function SnakeGame() {
             </TouchableOpacity>
           </View>
 
-          {/* Down Button */}
           <View style={styles.controlRow}>
             <TouchableOpacity
               onPress={() => handleDirection({ x: 0, y: 1 })}
@@ -737,7 +676,7 @@ export default function SnakeGame() {
             </TouchableOpacity>
           </View>
 
-          {/* Reset Button */}
+         
          <TouchableOpacity onPress={handleReset} style={styles.resetButton}>
   <Image
     source={require('../assets/images/snake_game_images/reset.png')}
@@ -751,17 +690,14 @@ export default function SnakeGame() {
   );
 }
 
-// ========================================
-// STYLES - Simple and Easy to Understand
-// ========================================
 const styles = StyleSheet.create({
-  // Background image
+
   background: {
     width: '100%',
     height: '100%',
   },
 
-  // Main container
+
   container: {
     flex: 1,
     alignItems: 'center',
@@ -769,7 +705,6 @@ const styles = StyleSheet.create({
     padding: 32,
   },
 
-  // ========== HEADER SECTION ==========
   header: {
     width: GRID_SIZE * CELL_SIZE,
     flexDirection: 'row',
@@ -778,7 +713,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
 
-  // Score section (left)
   scoreSection: {
     alignItems: 'flex-start',
   },
@@ -814,14 +748,12 @@ const styles = StyleSheet.create({
   
   },
 
-  // Right section (high score + play button)
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
   },
 
-  // Play/Pause button
   playButton: {
     width: 70,
     height: 38,

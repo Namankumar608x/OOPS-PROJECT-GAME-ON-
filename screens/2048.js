@@ -82,7 +82,7 @@ const App = () => {
 
         <ImageBackground source={require("../assets/images/background(1).png")} style={[styles.container]}>
             <View style={styles.header}>
-                <Image source={require("../assets/images/2048.png")} style={{height:"40",width:"70%"}}></Image>
+                <Image source={require("../assets/images/2048[1].png")} style={{height:"40",width:"70%"}}></Image>
             </View>
 
             <View style={styles.scoreContainer}>
@@ -156,96 +156,125 @@ function tileStyle(tile) {
 // const scheme = useColorScheme();
 // const theme=useTheme();
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        zIndex:2
-    },
-    scoreContainer: {
-        flexDirection: 'row',
-        justifyContent: "center",
-        width: '80%',
-        marginBottom: 20,
-        marginTop:20,
-        gap:10
-    },
-    score: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        backgroundColor: "#9b21d9",
-        padding:10,
-        margin:10,
-        borderRadius: 5,
-        borderColor:"#fff",
-        borderWidth:2,
-        opacity:0.8
-    },
+ container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+},
+
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: "#ffffff",
+    textShadowColor: "rgba(255, 45, 172, 0.8)", // neon pink glow
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
+    zIndex: 2,
+},
+scoreContainer: {
+    flexDirection: 'row',
+    justifyContent: "center",
+    width: '80%',
+    marginBottom: 20,
+    marginTop: 20,
+    gap: 10,
+},
+score: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 10,
+    margin: 10,
+
+    backgroundColor: "rgba(255, 255, 255, 0.18)", 
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "#ffffff",
+
+    color: "#ffffff",
+    textShadowColor: "rgba(255, 45, 172, 0.5)",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 6,
+},
+
     grid: {
-        backgroundColor: "transparent",
-        padding: 5,
-        
-    },
+    backgroundColor: "transparent",
+    padding: 5,
+},
+
     row: {
         flexDirection: 'row',
         zIndex:2,
         marginLeft:5
     },
+
     cell: {
-        width: 70,
-        height: 70,
-        margin: 5,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 5,
-    },
-    cellText: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#776e65',
-    },
+    width: 70,
+    height: 70,
+    margin: 5,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    borderRadius: 6,
+
+    backgroundColor: "rgba(250,250,25,0.05)",
+    borderWidth: 2,
+    borderColor: "rgba(0, 220, 255, 0.6)",     
+
+    shadowColor: "#00eaff",
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+},
+
+   cellText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  color: '#0a1b3d',
+
+    textShadowColor: "rgba(0, 212, 255, 0.9)", 
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 3,
+},
+
     controls: {
         marginTop: 20,
         justifyContent: "center",
         alignItems: "center"
     },
     button: {
-        backgroundColor: "#9b21d9",
-        padding: 10,
-        margin: 5,
-        borderRadius: 5,
-        borderColor:"#fff",
-        borderWidth:2,
-        marginRight:10,
-        opacity:0.8,
-        gap:10
-    },
-    buttonText: {
-        color: '#f9f6f2',
-        fontWeight: 'bold',
-        fontSize: 18,
-    },
-    themeBtn: {
-        justifyContent: "center",
-        alignItems: "center",
-        width: 60,
-        height: 60,
-        borderRadius: 60 / 2,
-        borderWidth: 3,
-        borderColor: "yellow",
-    },
-    header: {
-        width: "75%",
-        height:"auto",
-        justifyContent: "center",
-        alignItems:"center",
-    }
+    backgroundColor: "rgba(255, 255, 255, 0.08)", 
+    padding: 10,
+    margin: 5,
+    borderRadius: 6,
+
+    borderWidth: 2,
+    borderColor: "#00eaff",
+
+    shadowColor: "#00eaff",
+    shadowOpacity: 0.6,
+    shadowRadius: 6,
+},
+buttonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 18,
+},
+themeBtn: {
+    justifyContent: "center",
+    alignItems: "center",
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 3,
+    borderColor: "yellow",
+},
+header: {
+    width: "75%",
+    justifyContent: "center",
+    alignItems: "center",
+},
+
 });
 
 export default App;
