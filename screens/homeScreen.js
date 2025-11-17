@@ -49,30 +49,29 @@ const GameCard = ({ item, index, onPress }) => {
 
   return (
     <ImageBackground source={require("../assets/images/personimage.png")}  style={{borderRadius:"25%",overflow:"hidden"}}>
-      <Animated.View style={[styles.cardContainer, {
-        transform: [{ scale: scaleAnim }],
-        width: cardWidth,
-
-      }]}>
-        <Pressable
-          onPress={onPress}
-          onPressIn={handlePressIn}
-          onPressOut={handlePressOut}
-          style={styles.card}>
-          <View style={[styles.cardBackground, { backgroundImage: require("../assets/images/logo.jpg") }]}>
-            <Text style={styles.gameIcon}>{item.icon}</Text>
-
-            <View style={styles.cardGradient}>
-              <View style={styles.cardContent}>
-                <View style={styles.cardInfo}>
-                  <Text style={styles.cardTitle}>{item.title}</Text>
-                  <Text style={styles.cardCategory}>{item.category}</Text>
-                </View>
-              </View>
-            </View>
+     <Animated.View
+      style={[
+        styles.cardContainer,
+        { transform: [{ scale: scaleAnim }], width: cardWidth }
+      ]}
+    >
+      <Pressable onPress={onPress} style={styles.card}>
+        
+ 
+        <ImageBackground
+          source={item.add} 
+          resizeMode="cover"
+          style={styles.cardBackground}
+          imageStyle={{ borderRadius: 20 }}
+        >
+          <View style={styles.cardGradient}>
+            <Text style={styles.cardTitle}>{item.title}</Text>
+            <Text style={styles.cardCategory}>{item.category}</Text>
           </View>
-        </Pressable>
-      </Animated.View>
+        </ImageBackground>
+
+      </Pressable>
+    </Animated.View>
     </ImageBackground>
   );
 };
@@ -227,10 +226,10 @@ const Playground = ({ navigation }) => {
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
-              {/* <View style={styles.titleContainer}>
+             <View style={styles.titleContainer}>
                 <Text style={styles.mainTitle}>Play & Enjoy</Text>
-                <Text style={styles.subtitle}>Choose your favorite game</Text>
-              </View> */}
+              
+              </View> 
 
               <View style={styles.gamesGrid}>
                 {data.map((item, index) => (
@@ -265,7 +264,7 @@ const styles = StyleSheet.create({
   },
   gradientCircle: {
     position: "absolute",
-    borderRadius: 1000,
+    borderRadius: 10,
   },
   circle1: {
     width: 400,
@@ -347,18 +346,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
   },
-  profileButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "rgba(225, 177, 44, 1)",
-  },
-  profileIcon: {
-    fontSize: 20,
-  },
+
   content: {
     flex: 1,
   },
@@ -402,25 +390,34 @@ const styles = StyleSheet.create({
     maxWidth: isWeb ? 1200 : "100%",
   },
   cardContainer: {
-    marginBottom: 4,
+    marginBottom: 10,
   },
-  card: {
-    width: "100%",
-    height: isWeb ? 240 : undefined,
-    aspectRatio: isWeb ? undefined : 0.85,
-    borderRadius: 20,
-    overflow: "hidden",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-  },
+ card: {
+  width: "100%",
+  height: isWeb ? 240 : undefined,
+  aspectRatio: isWeb ? undefined : 0.85,
+
+  borderWidth: 2,
+  borderColor: "rgba(0, 200, 255, 0.6)", 
+
+  borderRadius: 15,
+  overflow: "hidden",
+
+  backgroundColor: "rgba(255, 255, 255, 0.05)",
+  shadowColor: "#00eaff",
+  shadowOffset: { width: 0, height: 0 },
+  shadowOpacity: 0.35,
+  shadowRadius: 10,
+  elevation: 8,
+},
+
   cardBackground: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "rgba(10, 15, 35, 0.55)",
+},
+
   gameIcon: {
     fontSize: isWeb ? 60 : 70,
     marginBottom: -15,
