@@ -15,7 +15,7 @@ const getCardWidth = () => {
   return (width - 60) / 2;
 };
 
-const GameCard = ({ item, index, onPress, add }) => {
+const GameCard = ({ item, index, onPress }) => {
   const [scaleAnim] = useState(new Animated.Value(0));
   const [pressed, setPressed] = useState(false);
 
@@ -46,9 +46,9 @@ const GameCard = ({ item, index, onPress, add }) => {
   };
 
   const cardWidth = getCardWidth();
-  // console.log(item.title);
+
   return (
-    <ImageBackground source={item.add} style={{ borderRadius: "1%", overflow: "hidden" }}>
+    <ImageBackground source={require("../assets/images/personimage.png")}  style={{borderRadius:"25%",overflow:"hidden"}}>
       <Animated.View style={[styles.cardContainer, {
         transform: [{ scale: scaleAnim }],
         width: cardWidth,
@@ -59,7 +59,7 @@ const GameCard = ({ item, index, onPress, add }) => {
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
           style={styles.card}>
-          <View style={[styles.cardBackground]}>
+          <View style={[styles.cardBackground, { backgroundImage: require("../assets/images/logo.jpg") }]}>
             <Text style={styles.gameIcon}>{item.icon}</Text>
 
             <View style={styles.cardGradient}>
@@ -87,7 +87,7 @@ const Playground = ({ navigation }) => {
         id: 1,
         title: "2048",
         category: "Brain Game",
-        add: require("../assets/images/2048(1).png"),
+
         bgColor: "#FF6B6B",
         screen: "2048",
       },
@@ -95,32 +95,31 @@ const Playground = ({ navigation }) => {
         id: 2,
         title: "Blockoduko",
         category: "Puzzle",
-        add: require("../assets/images/block.png"),
+        
         bgColor: "#4ECDC4",
         screen: "Blockoduko",
       },
       {
         id: 3,
+        title: "TicTacToe",
+        category: "Arcade",
+        
+        bgColor: "#FFE66D",
+        screen: "TicTacToe",
+      },
+      {
+        id: 4,
         title: "Snake Game",
         category: "Classic",
-        add: require("../assets/images/snake.png"),
+        
         bgColor: "#95E1D3",
         screen: "SnakeGame",
       },
       {
-        id: 4,
-        category: "Bingo",
-        title: "Speedy Bingo",
-        add: require("../assets/images/bingo.png"),
-        bgColor: "#FFB6C1",
-        screen: "Bingo"
-      },
-      
-      {
         id: 5,
         title: "Dino Jump",
         category: "Action",
-        add: require("../assets/images/dino.png"),
+        
         bgColor: "#A8E6CF",
         screen: "DinoJump",
       },
@@ -128,15 +127,14 @@ const Playground = ({ navigation }) => {
         id: 6,
         title: "Connect4",
         category: "Arcade",
-        add: require("../assets/images/connect_4.png"),
+        
         bgColor: "#FFD166",
-        screen: "Connect4Game",
+        screen: "Connect4Game",  
       },
       {
         id: 7,
         title: "Sudoku",
         category: "Puzzle",
-        add: require("../assets/images/sudoku.png"),
         bgColor: "#FFD166",
         screen: "Sudoku"
       },
@@ -148,21 +146,19 @@ const Playground = ({ navigation }) => {
         add: require("../assets/images/flappybird.png"),
         screen: "FlappyBird"
       },
-      {
+
+       {
         id: 9,
-        title: "TicTacToe",
         category: "Arcade",
-        add: require("../assets/images/tic tak toe.png"),
-        bgColor: "#FFE66D",
-        screen: "TicTacToe",
-      },
-      {
-        id: 10,
-        category: "Arcade",
-        title: "Tetris",
+        title:"Tetris",
         bgColor: "#FFB6C1",
-        add: require("../assets/images/Tetris.png"),
         screen: "Tetris"
+      },
+      {id:10,
+        category:"flappy bird",
+        title:"Flappy Bird",
+        bgColor:"#87CEEB",
+        screen:"FlappyBird"
       }
 
     ];
@@ -405,14 +401,6 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     marginBottom: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.4)',
-    shadowColor: '#00eaff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.7,
-    shadowRadius: 8,
   },
   card: {
     width: "100%",
