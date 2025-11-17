@@ -141,7 +141,7 @@ const Playground = ({ navigation }) => {
         screen: "Sudoku"
       },
       {
-        id: 10,
+        id: 8,
         category: "flappy bird",
         title: "Flappy Bird",
         bgColor: "#87CEEB",
@@ -164,7 +164,14 @@ const Playground = ({ navigation }) => {
         add: require("../assets/images/Tetris.png"),
         screen: "Tetris"
       }
-
+        {
+        id: 11,
+        category: "Arcade",
+        title: "Tetris",
+        bgColor: "#FFB6C1",
+        add: require("../assets/images/Tetris.png"),
+        screen: "Tetris"
+      }
     ];
 
     setTimeout(() => {
