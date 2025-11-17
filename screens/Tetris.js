@@ -340,6 +340,7 @@ const styles = StyleSheet.create({
   title:{
     fontSize:32,
     fontWeight:'bold',
+    color:'rgba(247, 0, 255, 1)',
     marginBottom:10
   },
   scoreBox:{
