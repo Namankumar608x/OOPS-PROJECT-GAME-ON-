@@ -1,668 +1,459 @@
-// screens/FlappyBirdScreen.js - Fixed Restart Version
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions, Animated } from 'react-native';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Dimensions,
+  TouchableWithoutFeedback,
+} from "react-native";
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const SCREEN_HEIGHT = Dimensions.get('window').height;
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
+const GAME_WIDTH = SCREEN_WIDTH;
+const GAME_HEIGHT = SCREEN_HEIGHT;
+const GRAVITY = 0.5;
+const JUMP_VELOCITY = -10;
+const GROUND_HEIGHT = 100;
 const BIRD_SIZE = 40;
 const PIPE_WIDTH = 60;
+const PIPE_CAP_HEIGHT = 20; // New constant for the cap height
 const PIPE_GAP = 200;
-const GRAVITY = 0.5;          // ← Increased from 0.3 (faster fall)
-const JUMP_STRENGTH = -9;     // ← Increased from -7 (higher jump)
+const PIPE_SPEED = 4;
+const PIPE_SPAWN_INTERVAL = 1500;
+const BIRD_START_X = GAME_WIDTH / 4;
+const BIRD_CENTER_X = BIRD_START_X + BIRD_SIZE / 2;
+const MAX_PIPE_Y = GAME_HEIGHT - GROUND_HEIGHT - PIPE_GAP - 50;
+const MIN_PIPE_Y = 50;
 
-// Obstacle types
-const OBSTACLE_TYPES = ['PIPE', 'CLOUD', 'SPIKE'];
+class Bird {
+  constructor(initialY) {
+    this.y = initialY;
+    this.velocity = 0;
+    this.size = BIRD_SIZE;
+  }
 
-const FlappyBirdScreen = () => {
-  const [gameStarted, setGameStarted] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
-  const [score, setScore] = useState(0);
+  applyGravity() {
+    this.velocity += GRAVITY;
+  }
+
+  updatePosition() {
+    this.y += this.velocity;
+  }
+
+  jump() {
+    this.velocity = JUMP_VELOCITY;
+  }
+
+  getTop() {
+    return this.y;
+  }
+
+  getBottom() {
+    return this.y + this.size;
+  }
+
+  checkCollisionWithPipe(pipe) {
+    const birdLeft = BIRD_START_X;
+    const birdRight = BIRD_START_X + this.size;
+    const birdTop = this.getTop();
+    const birdBottom = this.getBottom();
+
+    // 1. Check for horizontal overlap
+    const horizontalOverlap =
+      birdRight > pipe.getLeft() && birdLeft < pipe.getRight();
+
+    if (!horizontalOverlap) {
+      return false;
+    }
+
+    // 2. Check for vertical collision
+    // Collision with top pipe: bird's top edge is above the top pipe's bottom edge
+    const collisionWithTopPipe = birdTop < pipe.getTopPipeBottom();
+
+    // Collision with bottom pipe: bird's bottom edge is below the bottom pipe's top edge
+    const collisionWithBottomPipe = birdBottom > pipe.getBottomPipeTop();
+
+    return collisionWithTopPipe || collisionWithBottomPipe;
+  }
+}
+
+class Pipe {
+  constructor(x, gapCenterY) {
+    this.x = x;
+    const halfGap = PIPE_GAP / 2;
+
+    const topPipeBottom = gapCenterY - halfGap;
+    const bottomPipeTop = gapCenterY + halfGap;
+
+    this.topHeight = Math.max(0, topPipeBottom);
+    this.bottomHeight = Math.max(
+      0,
+      GAME_HEIGHT - GROUND_HEIGHT - bottomPipeTop
+    );
+
+    this.width = PIPE_WIDTH;
+    this.gap = PIPE_GAP;
+    this.passed = false;
+  }
+
+  updatePosition() {
+    this.x -= PIPE_SPEED;
+  }
+
+  isOffScreen() {
+    return this.x + this.width < 0;
+  }
+
+  getLeft() {
+    return this.x;
+  }
+
+  getRight() {
+    return this.x + this.width;
+  }
+
+  getTopPipeBottom() {
+    return this.topHeight;
+  }
+
+  getBottomPipeTop() {
+    return GAME_HEIGHT - GROUND_HEIGHT - this.bottomHeight;
+  }
+}
+
+const FlappyBirdApp = () => {
+  const [gameState, setGameState] = useState("ready");
   const [highScore, setHighScore] = useState(0);
-  const [pipes, setPipes] = useState([]);
-  const [wingFlap, setWingFlap] = useState(false); // ← Wing animation state
+  const [renderTrigger, setRenderTrigger] = useState(0);
 
-  // Bird position
-  const birdY = useRef(new Animated.Value(SCREEN_HEIGHT / 2)).current;
-  const birdVelocity = useRef(0);
-
-  // Game state refs
   const gameStateRef = useRef({
-    isPlaying: false,
-    isGameOver: false,
-    currentScore: 0,
-    currentSpeed: 2, // ← Initial obstacle speed
-    difficultyLevel: 1, // ← Track difficulty
+    bird: new Bird(GAME_HEIGHT / 2),
+    pipes: [],
+    score: 0,
   });
 
-  // Game loop
-  const gameLoopRef = useRef(null);
-  const frameCountRef = useRef(0);
+  const lastSpawnTimeRef = useRef(0);
 
-  // Update game - using useRef to avoid stale closure
-  const updateGameRef = useRef(() => {});
-
-  useEffect(() => {
-    updateGameRef.current = () => {
-      if (!gameStateRef.current.isPlaying || gameStateRef.current.isGameOver) {
-        return;
-      }
-
-      // Update bird physics
-      birdVelocity.current += GRAVITY;
-      const currentBirdY = birdY._value;
-      const newY = currentBirdY + birdVelocity.current;
-
-      // Check ground collision
-      if (newY >= SCREEN_HEIGHT - 100 - BIRD_SIZE) {
-        birdY.setValue(SCREEN_HEIGHT - 100 - BIRD_SIZE);
-        endGame();
-        return;
-      }
-
-      // Check ceiling collision
-      if (newY <= 0) {
-        birdY.setValue(0);
-        birdVelocity.current = 0;
-        return;
-      }
-
-      // Update bird position
-      birdY.setValue(newY);
-
-      // Spawn pipes
-      frameCountRef.current++;
-      if (frameCountRef.current % 120 === 0) {
-        spawnPipe();
-      }
-
-      // Update pipes
-      setPipes((currentPipes) => {
-        const birdX = 50;
-
-        return currentPipes
-          .map((pipe) => {
-            const newX = pipe.x - 2;
-
-            // Check collision
-            if (
-              birdX + BIRD_SIZE > newX &&
-              birdX < newX + PIPE_WIDTH &&
-              (newY < pipe.topHeight || newY + BIRD_SIZE > pipe.topHeight + PIPE_GAP)
-            ) {
-              endGame();
-            }
-
-            // Check score
-            if (!pipe.passed && newX + PIPE_WIDTH < birdX) {
-              pipe.passed = true;
-              gameStateRef.current.currentScore++;
-              setScore(gameStateRef.current.currentScore);
-            }
-
-            return { ...pipe, x: newX };
-          })
-          .filter((pipe) => pipe.x > -PIPE_WIDTH);
-      });
-    };
-  }, []);
-
-  // End game
-  const endGame = () => {
-    if (gameStateRef.current.isGameOver) return; // Prevent multiple calls
-    
-    gameStateRef.current.isGameOver = true;
-    gameStateRef.current.isPlaying = false;
-    
-    if (gameLoopRef.current) {
-      clearInterval(gameLoopRef.current);
-      gameLoopRef.current = null;
-    }
-    
-    setGameOver(true);
-    
-    // Update high score
-    if (gameStateRef.current.currentScore > highScore) {
-      setHighScore(gameStateRef.current.currentScore);
+  const updateHighScore = (newScore) => {
+    if (newScore > highScore) {
+      setHighScore(newScore);
     }
   };
 
-  // Spawn pipe
   const spawnPipe = () => {
-    const minHeight = 100;
-    const maxHeight = SCREEN_HEIGHT - PIPE_GAP - 200;
-    const topHeight = Math.random() * (maxHeight - minHeight) + minHeight;
+    const gapCenterY = Math.random() * (MAX_PIPE_Y - MIN_PIPE_Y) + MIN_PIPE_Y;
 
-    // Random obstacle type
-    const obstacleType = OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)];
+    const newPipe = new Pipe(GAME_WIDTH, gapCenterY);
 
-    setPipes((currentPipes) => [
-      ...currentPipes,
-      {
-        id: Date.now() + Math.random(),
-        x: SCREEN_WIDTH,
-        topHeight,
-        passed: false,
-        type: obstacleType, // ← Add obstacle type
-      },
-    ]);
+    gameStateRef.current.pipes.push(newPipe);
+
+    lastSpawnTimeRef.current = Date.now();
   };
 
-  // Start game
-  const startGame = () => {
-    console.log('🎮 Starting game...');
-    
-    // Clear existing interval
-    if (gameLoopRef.current) {
-      clearInterval(gameLoopRef.current);
-      gameLoopRef.current = null;
-    }
+  const endGame = () => {
+    const finalScore = gameStateRef.current.score;
+    updateHighScore(finalScore);
 
-    // Reset state
-    gameStateRef.current = {
-      isPlaying: true,
-      isGameOver: false,
-      currentScore: 0,
-    };
-
-    setGameStarted(true);
-    setGameOver(false);
-    setScore(0);
-    setPipes([]);
-    frameCountRef.current = 0;
-
-    // Reset bird
-    birdY.setValue(SCREEN_HEIGHT / 2);
-    birdVelocity.current = 0;
-
-    // Start game loop
-    gameLoopRef.current = setInterval(() => {
-      updateGameRef.current();
-    }, 16); // ~60 FPS
-
-    console.log('✅ Game started!');
+    setTimeout(() => {
+      setGameState("gameover");
+    }, 0);
   };
 
-  // Jump
-  const jump = () => {
-    if (!gameStarted || gameOver) {
-      // Start or restart
-      startGame();
-      setTimeout(() => {
-        birdVelocity.current = JUMP_STRENGTH;
-        animateWing();
-      }, 50);
-    } else {
-      // Normal jump
-      birdVelocity.current = JUMP_STRENGTH;
-      animateWing();
-    }
-  };
-
-  // Animate wing flap
-  const animateWing = () => {
-    setWingFlap(true);
-    setTimeout(() => setWingFlap(false), 150);
-  };
-
-  // Cleanup
   useEffect(() => {
-    return () => {
-      if (gameLoopRef.current) {
-        clearInterval(gameLoopRef.current);
+    let animationFrameId;
+    let lastTime = performance.now();
+    const frameDuration = 1000 / 60;
+
+    const gameLoop = (currentTime) => {
+      const state = gameStateRef.current;
+      const deltaTime = currentTime - lastTime;
+
+      if (deltaTime > frameDuration) {
+        lastTime = currentTime - (deltaTime % frameDuration);
+
+        if (gameState !== "playing") {
+          cancelAnimationFrame(animationFrameId);
+          return;
+        }
+
+        // 1. Bird Physics Update
+        state.bird.applyGravity();
+        state.bird.updatePosition();
+
+        // 2. Ground and Ceiling Collision (Ends game on ground hit)
+        const groundCollisionY = GAME_HEIGHT - GROUND_HEIGHT - state.bird.size;
+        if (state.bird.getBottom() >= GAME_HEIGHT - GROUND_HEIGHT) {
+          state.bird.y = groundCollisionY;
+          state.bird.velocity = 0;
+          endGame();
+          return;
+        }
+
+        if (state.bird.getTop() <= 0) {
+          state.bird.y = 0;
+          state.bird.velocity = 0;
+        }
+
+        // 3. Pipe Updates and Cleanup
+        state.pipes.forEach((pipe) => pipe.updatePosition());
+        state.pipes = state.pipes.filter((pipe) => !pipe.isOffScreen());
+
+        // 4. Pipe Spawning
+        if (Date.now() - lastSpawnTimeRef.current > PIPE_SPAWN_INTERVAL) {
+          spawnPipe();
+        }
+
+        // 5. Check Collision and Score
+        for (let i = 0; i < state.pipes.length; i++) {
+          const pipe = state.pipes[i];
+
+          // Collision Check
+          if (state.bird.checkCollisionWithPipe(pipe)) {
+            endGame();
+            return;
+          }
+
+          // Score Check: Bird's center has passed the pipe's right edge
+          if (BIRD_CENTER_X > pipe.getRight() && !pipe.passed) {
+            state.score += 1;
+            pipe.passed = true;
+          }
+        }
+
+        setRenderTrigger((prev) => prev + 1);
       }
+
+      animationFrameId = requestAnimationFrame(gameLoop);
     };
-  }, []);
+
+    if (gameState === "playing") {
+      gameLoop(performance.now());
+    }
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [gameState]);
+
+  const jump = () => {
+    if (gameState === "ready" || gameState === "gameover") {
+      startGame();
+    } else if (gameState === "playing") {
+      gameStateRef.current.bird.jump();
+    }
+  };
+
+  const startGame = () => {
+    setGameState("playing");
+    gameStateRef.current = {
+      bird: new Bird(GAME_HEIGHT / 2),
+      pipes: [],
+      score: 0,
+    };
+    lastSpawnTimeRef.current = 0;
+    spawnPipe();
+  };
+
+  const renderGameContent = () => {
+    if (gameState === "ready") {
+      return (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>High Score: {highScore}</Text>
+          <Text style={styles.messageText}>Tap to Start</Text>
+        </View>
+      );
+    }
+    if (gameState === "gameover") {
+      return (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>
+            Game Over! Score: {gameStateRef.current.score}
+          </Text>
+          <Text style={styles.messageTextSmall}>High Score: {highScore}</Text>
+          <Text style={styles.messageText} onPress={startGame}>
+            Tap to Play Again
+          </Text>
+        </View>
+      );
+    }
+    return null;
+  };
+
+  const renderPipes = () => {
+    return gameStateRef.current.pipes.map((pipe, index) => (
+      <View key={index}>
+        {/* Top Pipe Body */}
+        <View
+          style={[
+            styles.pipe,
+            {
+              left: pipe.x,
+              height: pipe.topHeight,
+              width: pipe.width,
+              top: 0,
+            },
+          ]}
+        />
+        {/* Top Pipe Cap */}
+        <View
+          style={[
+            styles.pipe,
+            styles.pipeTopCap,
+            {
+              left: pipe.x - 5, // Wider cap
+              width: pipe.width + 10,
+              top: pipe.topHeight - PIPE_CAP_HEIGHT,
+            },
+          ]}
+        />
+
+        {/* Bottom Pipe Body */}
+        <View
+          style={[
+            styles.pipe,
+            {
+              left: pipe.x,
+              height: pipe.bottomHeight,
+              width: pipe.width,
+              bottom: GROUND_HEIGHT,
+            },
+          ]}
+        />
+        {/* Bottom Pipe Cap */}
+        <View
+          style={[
+            styles.pipe,
+            styles.pipeBottomCap,
+            {
+              left: pipe.x - 5, // Wider cap
+              width: pipe.width + 10,
+              bottom: GROUND_HEIGHT + pipe.bottomHeight - PIPE_CAP_HEIGHT,
+            },
+          ]}
+        />
+      </View>
+    ));
+  };
 
   return (
-    <TouchableOpacity
-      activeOpacity={1}
-      onPress={jump}
-      style={styles.container}
-    >
-      {/* Background */}
-      <View style={styles.background} />
+    <TouchableWithoutFeedback onPress={jump}>
+      <View style={styles.container}>
+        <View style={styles.sky}>
+          {renderGameContent()}
 
-      {/* Bird */}
-      <Animated.View
-        style={[
-          styles.bird,
-          {
-            left: 50,
-            top: birdY,
-          },
-        ]}
-      >
-        <View style={styles.birdBody}>
-          {/* Wing with animation */}
-          <View style={[
-            styles.birdWing, 
-            wingFlap && styles.birdWingFlap
-          ]} />
-          <View style={styles.birdEye} />
-          <View style={styles.birdBeak} />
-          {/* Shine effect */}
-          <View style={styles.birdShine} />
+          {renderPipes()}
+
+          <View
+            style={[
+              styles.bird,
+              {
+                top: gameStateRef.current.bird.y,
+                left: BIRD_START_X,
+              },
+            ]}
+          />
+
+          <Text style={styles.scoreText}>
+            Score: {gameStateRef.current.score}
+          </Text>
         </View>
-      </Animated.View>
 
-      {/* Obstacles */}
-      {pipes.map((pipe) => (
-        <View key={pipe.id} style={[styles.pipeContainer, { left: pipe.x }]}>
-          {pipe.type === 'PIPE' ? (
-            <>
-              {/* Traditional Pipe */}
-              <View
-                style={[
-                  styles.pipe,
-                  styles.pipeTop,
-                  { height: pipe.topHeight },
-                ]}
-              >
-                <View style={[styles.pipeCap, { bottom: -10 }]} />
-              </View>
-              
-              <View
-                style={[
-                  styles.pipe,
-                  styles.pipeBottom,
-                  { top: pipe.topHeight + PIPE_GAP },
-                ]}
-              >
-                <View style={[styles.pipeCap, { top: -10 }]} />
-              </View>
-            </>
-          ) : pipe.type === 'CLOUD' ? (
-            <>
-              {/* Cloud Obstacle */}
-              <View style={[styles.cloudObstacle, { top: pipe.topHeight - 30 }]}>
-                <View style={styles.cloudCircle1} />
-                <View style={styles.cloudCircle2} />
-                <View style={styles.cloudCircle3} />
-              </View>
-              <View style={[styles.cloudObstacle, { top: pipe.topHeight + PIPE_GAP }]}>
-                <View style={styles.cloudCircle1} />
-                <View style={styles.cloudCircle2} />
-                <View style={styles.cloudCircle3} />
-              </View>
-            </>
-          ) : (
-            <>
-              {/* Spike Obstacle */}
-              <View style={[styles.spikeTop, { height: pipe.topHeight }]} />
-              <View style={[styles.spikeBottom, { top: pipe.topHeight + PIPE_GAP }]} />
-            </>
-          )}
-        </View>
-      ))}
-
-      {/* Ground */}
-      <View style={styles.ground} />
-
-      {/* Score */}
-      {gameStarted && !gameOver && (
-        <Text style={styles.score}>{score}</Text>
-      )}
-
-      {/* Start Screen */}
-      {!gameStarted && (
-        <View style={styles.overlay}>
-          <Text style={styles.title}>🐦 FLAPPY BIRD 🐦</Text>
-          <Text style={styles.subtitle}>Tap to Start</Text>
-          <Text style={styles.highScoreText}>High Score: {highScore}</Text>
-        </View>
-      )}
-
-      {/* Game Over Screen */}
-      {gameOver && (
-        <View style={styles.overlay}>
-          <Text style={styles.gameOverText}>GAME OVER</Text>
-          <Text style={styles.finalScore}>Score: {score}</Text>
-          <Text style={styles.bestScore}>Best: {highScore}</Text>
-          <Text style={styles.restartText}>Tap to Restart</Text>
-        </View>
-      )}
-
-      {/* Bottom UI */}
-      <View style={styles.bottomUI}>
-        <View style={styles.statBox}>
-          <Text style={styles.statLabel}>Score</Text>
-          <Text style={styles.statValue}>{score}</Text>
-        </View>
-        <View style={[styles.statBox, styles.statBoxBest]}>
-          <Text style={styles.statLabel}>Best</Text>
-          <Text style={styles.statValue}>{highScore}</Text>
-        </View>
+        <View style={styles.ground} />
       </View>
-
-      {/* Instructions */}
-      {!gameStarted && (
-        <View style={styles.instructions}>
-          <Text style={styles.instructionText}>📱 Tap screen to flap</Text>
-          <Text style={styles.instructionText}>🎯 Avoid the pipes!</Text>
-        </View>
-      )}
-    </TouchableOpacity>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#16042dff',
   },
-  background: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor:  '#16042dff',
-  },
-  bird: {
-    position: 'absolute',
-    width: BIRD_SIZE,
-    height: BIRD_SIZE,
-    zIndex: 10,
-  },
-  birdBody: {
-    width: BIRD_SIZE,
-    height: BIRD_SIZE,
-    backgroundColor: '#FFD700',
-    borderRadius: BIRD_SIZE / 2,
-    borderWidth: 3,
-    borderColor: '#FFA500',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 8,
-  },
-  birdEye: {
-    position: 'absolute',
-    width: 10,
-    height: 10,
-    backgroundColor: '#000',
-    borderRadius: 5,
-    top: 10,
-    right: 8,
-    borderWidth: 2,
-    borderColor: '#FFF',
-  },
-  birdBeak: {
-    position: 'absolute',
-    width: 0,
-    height: 0,
-    backgroundColor: 'transparent',
-    borderStyle: 'solid',
-    borderLeftWidth: 12,
-    borderRightWidth: 0,
-    borderBottomWidth: 8,
-    borderTopWidth: 8,
-    borderLeftColor: '#FF6B35',
-    borderRightColor: 'transparent',
-    borderBottomColor: 'transparent',
-    borderTopColor: 'transparent',
-    right: -12,
-    top: 12,
-  },
-  birdWing: {
-    position: 'absolute',
-    width: 18,
-    height: 12,
-    backgroundColor: '#FFA500',
-    borderRadius: 6,
-    left: 5,
-    top: 20,
-    borderWidth: 2,
-    borderColor: '#FF8C00',
-    transform: [{ rotate: '-15deg' }],
-  },
-  birdWingFlap: {
-    transform: [{ rotate: '15deg' }],
-    top: 15,
-  },
-  birdShine: {
-    position: 'absolute',
-    width: 12,
-    height: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
-    borderRadius: 6,
-    top: 5,
-    left: 8,
-  },
-  // Cloud Obstacle
-  cloudObstacle: {
-    position: 'absolute',
-    width: PIPE_WIDTH + 20,
-    height: 50,
-    left: -10,
-  },
-  cloudCircle1: {
-    position: 'absolute',
-    width: 30,
-    height: 30,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 15,
-    bottom: 0,
-    left: 0,
-    opacity: 0.9,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-  cloudCircle2: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    bottom: 5,
-    left: 20,
-    opacity: 0.9,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-  cloudCircle3: {
-    position: 'absolute',
-    width: 30,
-    height: 30,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 15,
-    bottom: 0,
-    right: 0,
-    opacity: 0.9,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-  },
-  // Spike Obstacle
-  spikeTop: {
-    position: 'absolute',
-    top: 0,
-    width: PIPE_WIDTH,
-    backgroundColor: '#E74C3C',
-    borderLeftWidth: 30,
-    borderRightWidth: 30,
-    borderBottomWidth: 40,
-    borderStyle: 'solid',
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: '#C0392B',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 3,
-  },
-  spikeBottom: {
-    position: 'absolute',
-    width: PIPE_WIDTH,
-    height: SCREEN_HEIGHT,
-    backgroundColor: '#E74C3C',
-    borderLeftWidth: 30,
-    borderRightWidth: 30,
-    borderTopWidth: 40,
-    borderStyle: 'solid',
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderTopColor: '#C0392B',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 3,
-  },
-  pipeContainer: {
-    position: 'absolute',
-    width: PIPE_WIDTH,
-    height: SCREEN_HEIGHT,
-  },
-  pipe: {
-    position: 'absolute',
-    width: PIPE_WIDTH,
-    backgroundColor: '#2ECC71',
-    borderWidth: 4,
-    borderColor: '#27AE60',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 4,
-    elevation: 6,
-  },
-  pipeTop: {
-    top: 0,
-  },
-  pipeBottom: {
-    bottom: 100,
-    height: SCREEN_HEIGHT,
-  },
-  pipeCap: {
-    position: 'absolute',
-    width: PIPE_WIDTH + 12,
-    height: 30,
-    backgroundColor: '#27AE60',
-    left: -6,
-    borderRadius: 6,
-    borderWidth: 4,
-    borderColor: '#229954',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.5,
-    shadowRadius: 3,
-    elevation: 8,
+  sky: {
+    flex: 1,
+    background: <img src="assets\images\background.png" alt="background" />
+    // overflow: "hidden",
   },
   ground: {
-    position: 'absolute',
-    bottom: 0,
-    width: SCREEN_WIDTH,
-    height: 100,
-    backgroundColor: '#8B4513',
-    borderTopWidth: 8,
-    borderTopColor: '#654321',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    height: GROUND_HEIGHT,
+    backgroundColor: "#ded895",
+    borderTopWidth: 5,
+    borderTopColor: "#c5b878",
+    zIndex: 4,
   },
-  score: {
-    position: 'absolute',
-    top: 50,
-    alignSelf: 'center',
-    fontSize: 60,
-    fontWeight: 'bold',
-    color: '#FFF',
-    textShadowColor: '#000',
+  pipe: {
+    position: "absolute",
+    backgroundColor: "#000000ff",
+    borderWidth: 2,
+    borderColor: "#38730b",
+    borderRadius: 0, // Removed radius for pipe body
+    zIndex: 3,
+  },
+  pipeTopCap: {
+    height: PIPE_CAP_HEIGHT,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderTopWidth: 0,
+    top: 0,
+  },
+  pipeBottomCap: {
+    height: PIPE_CAP_HEIGHT,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomWidth: 0,
+    bottom: 0,
+  },
+  bird: {
+    position: "absolute",
+    width: BIRD_SIZE,
+    height: BIRD_SIZE,
+    borderRadius: BIRD_SIZE / 2,
+    backgroundColor: "#ffdb00",
+    borderWidth: 2,
+    borderColor: "#d89b00",
+    zIndex: 5,
+  },
+  messageContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  messageText: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "white",
+    textShadowColor: "black",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 5,
-    zIndex: 100,
+    marginVertical: 10,
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginBottom: 20,
-  },
-  subtitle: {
-    fontSize: 24,
-    color: '#FFF',
-    marginBottom: 10,
-  },
-  highScoreText: {
-    fontSize: 18,
-    color: '#FFF',
-  },
-  gameOverText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FF0000',
-    marginBottom: 20,
-  },
-  finalScore: {
-    fontSize: 32,
-    color: '#FFF',
-    marginBottom: 10,
-  },
-  bestScore: {
-    fontSize: 32,
-    color: '#FFD700',
-    marginBottom: 20,
-  },
-  restartText: {
-    fontSize: 24,
-    color: '#FFF',
-  },
-  bottomUI: {
-    position: 'absolute',
-    bottom: 120,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 20,
-  },
-  statBox: {
-    backgroundColor: 'rgba(255, 215, 0, 0.2)',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#FFD700',
-    minWidth: 120,
-    alignItems: 'center',
-  },
-  statBoxBest: {
-    backgroundColor: 'rgba(255, 107, 53, 0.2)',
-    borderColor: '#FF6B35',
-  },
-  statLabel: {
+  messageTextSmall: {
     fontSize: 16,
-    color: '#FFF',
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    color: "white",
+    textShadowColor: "black",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+    marginVertical: 5,
   },
-  statValue: {
-    fontSize: 24,
-    color: '#FFF',
-    fontWeight: 'bold',
-  },
-  instructions: {
-    position: 'absolute',
-    bottom: 200,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  instructionText: {
-    fontSize: 16,
-    color: '#FFF',
-    marginVertical: 2,
+  scoreText: {
+    position: "absolute",
+    top: 50,
+    width: "100%",
+    textAlign: "center",
+    fontSize: 48,
+    fontWeight: "bold",
+    color: "white",
+    textShadowColor: "black",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 5,
+    zIndex: 6,
   },
 });
 
-export default FlappyBirdScreen;
+export default FlappyBirdApp;
