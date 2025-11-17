@@ -15,7 +15,7 @@ const getCardWidth = () => {
   return (width - 60) / 2;
 };
 
-const GameCard = ({ item, index, onPress, add }) => {
+const GameCard = ({ item, index, onPress }) => {
   const [scaleAnim] = useState(new Animated.Value(0));
   const [pressed, setPressed] = useState(false);
 
@@ -46,9 +46,9 @@ const GameCard = ({ item, index, onPress, add }) => {
   };
 
   const cardWidth = getCardWidth();
-  // console.log(item.title);
+
   return (
-    <ImageBackground source={item.add} style={{ borderRadius: "1%", overflow: "hidden" }}>
+    <ImageBackground source={require("../assets/images/personimage.png")}  style={{borderRadius:"25%",overflow:"hidden"}}>
       <Animated.View style={[styles.cardContainer, {
         transform: [{ scale: scaleAnim }],
         width: cardWidth,
@@ -59,7 +59,7 @@ const GameCard = ({ item, index, onPress, add }) => {
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
           style={styles.card}>
-          <View style={[styles.cardBackground]}>
+          <View style={[styles.cardBackground, { backgroundImage: require("../assets/images/logo.jpg") }]}>
             <Text style={styles.gameIcon}>{item.icon}</Text>
 
             <View style={styles.cardGradient}>
@@ -83,11 +83,11 @@ const Playground = ({ navigation }) => {
 
   useEffect(() => {
     const gamesData = [
-      {
+     {
         id: 1,
         title: "2048",
         category: "Brain Game",
-        add: require("../assets/images/2048(1).png"),
+        add: require("../assets/images/2048.png"),
         bgColor: "#FF6B6B",
         screen: "2048",
       },
@@ -158,14 +158,6 @@ const Playground = ({ navigation }) => {
       },
       {
         id: 10,
-        category: "Arcade",
-        title: "Tetris",
-        bgColor: "#FFB6C1",
-        add: require("../assets/images/Tetris.png"),
-        screen: "Tetris"
-      }
-        {
-        id: 11,
         category: "Arcade",
         title: "Tetris",
         bgColor: "#FFB6C1",
@@ -412,14 +404,6 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     marginBottom: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.4)',
-    shadowColor: '#00eaff',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.7,
-    shadowRadius: 8,
   },
   card: {
     width: "100%",

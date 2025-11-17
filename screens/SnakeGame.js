@@ -779,37 +779,20 @@ const styles = StyleSheet.create({
   },
 
   // Score section (left)
-scoreSection: {
-  marginTop: 50,
-  marginRight:3,
-  backgroundColor: 'rgba(255, 255, 255, 0.08)', // soft glass
-  paddingVertical: 8,
-  paddingHorizontal: 12,
-  borderWidth: 1.5,
-  borderColor: 'rgba(255, 45, 172, 0.8)', // neon pink
-  borderRadius: 8,
-  shadowColor: '#ff2dac',
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.6,
-  shadowRadius: 6,
-},
-
-scoreLabel: {
-  fontSize: 10,
-  fontWeight:700,
-  color: 'rgba(255, 255, 255, 0.8)',
-  marginBottom: 2,
-},
-
-scoreValue: {
-  fontSize: 14,
-  fontWeight: 'bold',
-  color: '#ffffff',
-  textShadowColor: 'rgba(255, 45, 172, 0.8)',
-  textShadowOffset: { width: 0, height: 0 },
-  textShadowRadius: 2,
-},
-
+  scoreSection: {
+    alignItems: 'flex-start',
+  },
+  scoreLabel: {
+    fontSize: 11,
+    color: '#e0e0ff',
+    opacity: 0.7,
+    marginBottom: 4,
+  },
+  scoreValue: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#ec4899',
+  },
 
   titleSection: {
     alignItems: 'center',
@@ -817,63 +800,45 @@ scoreValue: {
   logo: {
     width: 200,
     height: 80,
-    marginBottom: 4,
-  
+    marginBottom: 2,
+    marginLeft:12,
 
   },
-levelText: {
-  fontSize: 13,
-  fontWeight: '700',
-  color: '#ffffff',
+  levelText: {
+    fontSize: 11,
+    color: '#ff69b4',
+    borderWidth:2,
+    padding:3,
+    marginLeft:5,
+    borderColor:'#ffffff',
+  
+  },
 
-  // Glass effect
-  backgroundColor: 'rgba(255, 255, 255, 0.08)',
-
-  paddingVertical: 4,
-  paddingHorizontal: 10,
-
-  // Neon border
-  borderWidth: 2,
-  borderColor: '#ff2dac',
-  borderRadius: 8,
-
-  marginLeft: 6,
-
-  // Neon glow
-  shadowColor: '#ff2dac',
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0.7,
-  shadowRadius: 6,
-},
-
-
-
+  // Right section (high score + play button)
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
 
   // Play/Pause button
-playButton: {
-  width: 60,
-  height: 35,
-  marginTop:40,
-
-backgroundColor: 'rgba(255, 255, 255, 0.10)',   // softer glass
-borderWidth: 2,
-borderColor: '#ff2dac',                         // neon pink
-shadowColor: '#ff2dac',
-shadowOpacity: 0.7,
-shadowRadius: 8,
-
-  borderRadius: 8,
-  alignItems: 'center',
-  justifyContent: 'center',
-},
-
-playButtonText: {
-  fontSize: 13,
-  fontWeight: '600',
-  color: '#ffffff',
-  letterSpacing: 1,
-},
-
+  playButton: {
+    width: 70,
+    height: 38,
+    borderWidth: 2,
+    borderColor:'#ffffff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
+  },
+  playButtonDisabled: {
+    opacity: 0.5,
+  },
+  playButtonText: {
+    fontSize: 18,
+    color: '#fbbf24',
+    fontWeight: 'bold',
+  },
 
   // ========== GAME BOARD ==========
   gameBoard: {
