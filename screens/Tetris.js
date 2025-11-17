@@ -43,10 +43,9 @@ const TETROMINOS = {
     ],
     color: '#2196f3'
   },
-  L: {
+  o: {
     shape: [
-      [0,0,1],
-      [1,1,1]
+      [1]
     ],
     color: '#ff9800'
   },
@@ -84,7 +83,7 @@ class Tetromino {
   }
 }
 class TetrisGrid {
-  constructor(rows = 20, cols = 10){
+  constructor(rows = 15, cols = 10){
     this.rows = rows;
     this.cols = cols;
     this.matrix = Array(rows).fill(null).map(()=>Array(cols).fill(null));
