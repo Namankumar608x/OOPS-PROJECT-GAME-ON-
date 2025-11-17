@@ -141,7 +141,7 @@ const Playground = ({ navigation }) => {
         screen: "Sudoku"
       },
       {
-        id: 10,
+        id: 8,
         category: "flappy bird",
         title: "Flappy Bird",
         bgColor: "#87CEEB",
