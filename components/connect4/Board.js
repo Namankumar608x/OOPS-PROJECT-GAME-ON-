@@ -194,25 +194,19 @@ export class Board {
     return positions;
   }
 
-  /**
-   * Clone board for AI simulation
-   */
+
   clone() {
     const newBoard = new Board();
     newBoard.board = this.board.map(row => [...row]);
     return newBoard;
   }
 
-  /**
-   * Reset board
-   */
+ 
   reset() {
     this.board = this.createEmptyBoard();
   }
 
-  /**
-   * Get board state
-   */
+
   getBoard() {
     return this.board;
   }

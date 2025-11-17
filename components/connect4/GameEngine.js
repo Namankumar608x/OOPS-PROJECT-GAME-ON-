@@ -25,7 +25,7 @@ export class GameEngine {
   /**
    * Make a move
    */
-  makeMove(col) {
+  makeMove(col, skipWinCheck = false) {
     if (this.gameOver || this.isAnimating || this.board.isColumnFull(col)) {
       return false;
     }
@@ -34,8 +34,8 @@ export class GameEngine {
     
     if (row === -1) return false;
 
-    // Check for win
-    if (this.board.checkWin(this.currentPlayer)) {
+    // Check for win (unless skipped for animation)
+    if (!skipWinCheck && this.board.checkWin(this.currentPlayer)) {
       this.gameOver = true;
       this.winner = this.currentPlayer;
       this.winningPositions = this.board.getWinningPositions(this.currentPlayer);
@@ -43,7 +43,7 @@ export class GameEngine {
     }
 
     // Check for draw
-    if (this.board.isFull()) {
+    if (!skipWinCheck && this.board.isFull()) {
       this.gameOver = true;
       this.isDraw = true;
       return true;
@@ -56,10 +56,33 @@ export class GameEngine {
   }
 
   /**
+   * Check and apply win/draw conditions
+   */
+  checkGameEnd() {
+    // Switch back to check the player who just moved
+    const lastPlayer = this.currentPlayer === 1 ? 2 : 1;
+    
+    if (this.board.checkWin(lastPlayer)) {
+      this.gameOver = true;
+      this.winner = lastPlayer;
+      this.winningPositions = this.board.getWinningPositions(lastPlayer);
+      return true;
+    }
+
+    if (this.board.isFull()) {
+      this.gameOver = true;
+      this.isDraw = true;
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * AI makes a move (Minimax algorithm)
    */
   makeAIMove() {
-    if (this.gameOver || this.currentPlayer !== 2) return;
+    if (this.gameOver || this.currentPlayer !== 2) return -1;
 
     const depth = this.aiDifficulty === 'easy' ? 2 : 
                   this.aiDifficulty === 'medium' ? 4 : 6;
@@ -67,10 +90,12 @@ export class GameEngine {
     const bestMove = this.findBestMove(depth);
     
     if (bestMove !== -1) {
-      setTimeout(() => {
-        this.makeMove(bestMove);
-      }, 500); // Delay for realism
+      // Make move without checking win immediately
+      this.makeMove(bestMove, true);
+      return bestMove;
     }
+    
+    return -1;
   }
 
   /**
