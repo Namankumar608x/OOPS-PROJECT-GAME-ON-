@@ -175,7 +175,7 @@ const BlockComponent = ({ block, onSelect, isSelected }) => {
               style={[
                 styles.blockCell,
                 cellValue === 1
-                ? { backgroundColor: block.color, borderColor: block.color, borderWidth: 1 }
+                ? { backgroundColor: block.color, borderColor: '#000', borderWidth: 1 }
                 : styles.emptyBlockCell
               ]}
             />
@@ -361,9 +361,9 @@ const styles = StyleSheet.create({
     width: '80%',
     marginBottom: 20,
   },
-  score: { fontSize: 24, color:'#9900ffff' },
-  highScore: { fontSize: 24, color: '#9900ffff', fontWeight: 'bold' },
-  multiplier: { fontSize: 24, color: '#9900ffff', fontWeight: 'bold' },
+  score: { fontSize: 12, color:'#9900ffff' },
+  highScore: { fontSize: 12, color: '#9900ffff', fontWeight: 'bold' },
+  multiplier: { fontSize: 12, color: '#9900ffff', fontWeight: 'bold' },
 
   instructions: { marginTop: 20, fontSize: 16, color: '#eee' },
 
