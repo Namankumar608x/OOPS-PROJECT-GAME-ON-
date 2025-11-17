@@ -175,7 +175,7 @@ const BlockComponent = ({ block, onSelect, isSelected }) => {
               style={[
                 styles.blockCell,
                 cellValue === 1
-                ? { backgroundColor: block.color, borderColor: block.color, borderWidth: 1 }
+                ? { backgroundColor: block.color, borderColor: '#000', borderWidth: 1 }
                 : styles.emptyBlockCell
               ]}
             />
