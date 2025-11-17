@@ -280,60 +280,44 @@ const FlappyBirdApp = () => {
   };
 
   const renderPipes = () => {
-    return gameStateRef.current.pipes.map((pipe, index) => (
-      <View key={index}>
-        {/* Top Pipe Body */}
-        <View
-          style={[
-            styles.pipe,
-            {
-              left: pipe.x,
-              height: pipe.topHeight,
-              width: pipe.width,
-              top: 0,
-            },
-          ]}
-        />
-        {/* Top Pipe Cap */}
-        <View
-          style={[
-            styles.pipe,
-            styles.pipeTopCap,
-            {
-              left: pipe.x - 5, // Wider cap
-              width: pipe.width + 10,
-              top: pipe.topHeight - PIPE_CAP_HEIGHT,
-            },
-          ]}
-        />
+    return gameStateRef.current.pipes.map((pipe, index) => {
+      const bottomPipeTop = GAME_HEIGHT - GROUND_HEIGHT - pipe.bottomHeight;
 
-        {/* Bottom Pipe Body */}
-        <View
-          style={[
-            styles.pipe,
-            {
-              left: pipe.x,
-              height: pipe.bottomHeight,
-              width: pipe.width,
-              bottom: GROUND_HEIGHT,
-            },
-          ]}
-        />
-        {/* Bottom Pipe Cap */}
-        <View
-          style={[
-            styles.pipe,
-            styles.pipeBottomCap,
-            {
-              left: pipe.x - 5, // Wider cap
-              width: pipe.width + 10,
-              bottom: GROUND_HEIGHT + pipe.bottomHeight - PIPE_CAP_HEIGHT,
-            },
-          ]}
-        />
-      </View>
-    ));
+      return (
+        <React.Fragment key={index}>
+          {/* Top Pipe */}
+          <View
+            style={[
+              styles.pipe,
+              {
+                position: "absolute",
+                left: pipe.x,
+                width: pipe.width,
+                height: pipe.topHeight,
+                top: 0,
+              },
+            ]}
+          />
+
+          {/* Bottom Pipe (touches ground) */}
+          <View
+            style={[
+              styles.pipe,
+              {
+                position: "absolute",
+                left: pipe.x,
+                width: pipe.width,
+                height: pipe.bottomHeight,
+                top: bottomPipeTop,
+              },
+            ]}
+          />
+        </React.Fragment>
+      );
+    });
   };
+
+
 
   return (
     <TouchableWithoutFeedback onPress={jump}>
@@ -370,8 +354,7 @@ const styles = StyleSheet.create({
   },
   sky: {
     flex: 1,
-    background: <img src="assets\images\background.png" alt="background" />
-    // overflow: "hidden",
+    background: <img src="assets\images\background_main.png" alt="background" />,
   },
   ground: {
     height: GROUND_HEIGHT,
@@ -393,14 +376,14 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     borderTopWidth: 0,
-    top: 0,
+    top: 0, 
   },
   pipeBottomCap: {
     height: PIPE_CAP_HEIGHT,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
     borderBottomWidth: 0,
-    bottom: 0,
+    bottom: 0, 
   },
   bird: {
     position: "absolute",
