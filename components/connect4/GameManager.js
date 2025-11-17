@@ -1,4 +1,4 @@
-// GameManager.js - Connect 4 React Component (UPDATED)
+// GameManager.js - Connect 4 React Component (FIXED)
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -36,15 +36,29 @@ export default function GameManager() {
       gameState.currentPlayer === 2 &&
       !gameState.gameOver
     ) {
-      setTimeout(() => {
-        gameEngineRef.current.makeAIMove();
-        setGameState({ ...gameEngineRef.current.getGameState() });
-      }, 500);
+      // Use a timeout to give visual feedback before AI moves
+      const aiTimeout = setTimeout(() => {
+        const aiMove = gameEngineRef.current.makeAIMove();
+        if (aiMove !== -1) {
+          // Update state to show AI's piece first
+          setGameState({ ...gameEngineRef.current.getGameState() });
+          
+          // Then check for win after a delay so user can see the piece
+          setTimeout(() => {
+            const gameEnded = gameEngineRef.current.checkGameEnd();
+            if (gameEnded) {
+              setGameState({ ...gameEngineRef.current.getGameState() });
+            }
+          }, 500); // Delay to show the winning piece before victory message
+        }
+      }, 600);
+
+      return () => clearTimeout(aiTimeout);
     }
   }, [gameState?.currentPlayer, gameState?.gameMode, gameState?.gameOver]);
 
   const handleColumnPress = (col) => {
-    if (!gameEngineRef.current || gameState.gameOver) return;
+    if (!gameEngineRef.current || gameState.gameOver || (gameState.gameMode === 'pvai' && gameState.currentPlayer === 2)) return;
 
     const success = gameEngineRef.current.makeMove(col);
     if (success) {
@@ -215,7 +229,7 @@ export default function GameManager() {
                   onPress={() => handleColumnPress(col)}
                   onPressIn={() => setSelectedCol(col)}
                   onPressOut={() => setSelectedCol(null)}
-                  disabled={gameState.gameOver}
+                  disabled={gameState.gameOver || (gameState.gameMode === 'pvai' && gameState.currentPlayer === 2)}
                 >
                   <Ionicons name="chevron-down" size={24} color="#fff" />
                 </TouchableOpacity>
