@@ -4,8 +4,8 @@ import { Board } from './Board';
 export class GameEngine {
   constructor() {
     this.board = new Board();
-    this.currentPlayer = 1; // 1 = Player 1 (red), 2 = Player 2/AI (yellow)
-    this.gameMode = 'menu'; // 'menu', 'pvp', 'pvai'
+    this.currentPlayer = 1; 
+    this.gameMode = 'menu';
     this.gameOver = false;
     this.winner = null;
     this.isDraw = false;
@@ -187,9 +187,6 @@ export class GameEngine {
     return score;
   }
 
-  /**
-   * Score all possible 4-in-a-row windows
-   */
   scorePosition(board, player) {
     let score = 0;
 
@@ -248,9 +245,7 @@ export class GameEngine {
     return score;
   }
 
-  /**
-   * Evaluate a window of 4 cells
-   */
+ 
   evaluateWindow(window, player) {
     let score = 0;
     const opponent = player === 1 ? 2 : 1;
@@ -268,9 +263,6 @@ export class GameEngine {
     return score;
   }
 
-  /**
-   * Reset game
-   */
   reset() {
     this.board.reset();
     this.currentPlayer = 1;
@@ -281,9 +273,7 @@ export class GameEngine {
     this.isAnimating = false;
   }
 
-  /**
-   * Get game state
-   */
+  
   getGameState() {
     return {
       board: this.board.getBoard(),

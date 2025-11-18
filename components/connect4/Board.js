@@ -6,9 +6,6 @@ export class Board {
     this.board = this.createEmptyBoard();
   }
 
-  /**
-   * Create empty board
-   */
   createEmptyBoard() {
     return Array(this.rows).fill(null).map(() => Array(this.cols).fill(0));
   }
@@ -30,9 +27,7 @@ export class Board {
     return -1; // Column is full
   }
 
-  /**
-   * Check if column is full
-   */
+  
   isColumnFull(col) {
     return this.board[0][col] !== 0;
   }
