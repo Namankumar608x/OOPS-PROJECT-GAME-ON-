@@ -5,7 +5,13 @@ import {
   Text,
   Dimensions,
   TouchableWithoutFeedback,
+  Image,
+  ImageBackground,
 } from "react-native";
+
+import ground from "../assets/images/flappy-ground.png"; 
+import bg from "../assets/images/flappy-background.png";
+import birdSprite from "../assets/images/flappybird.png";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -14,10 +20,10 @@ const GAME_HEIGHT = SCREEN_HEIGHT;
 const GRAVITY = 0.5;
 const JUMP_VELOCITY = -10;
 const GROUND_HEIGHT = 100;
-const BIRD_SIZE = 40;
+const BIRD_SIZE = 120;
 const PIPE_WIDTH = 60;
 const PIPE_CAP_HEIGHT = 20; // New constant for the cap height
-const PIPE_GAP = 200;
+const PIPE_GAP = 300;
 const PIPE_SPEED = 4;
 const PIPE_SPAWN_INTERVAL = 1500;
 const BIRD_START_X = GAME_WIDTH / 4;
@@ -322,12 +328,12 @@ const FlappyBirdApp = () => {
   return (
     <TouchableWithoutFeedback onPress={jump}>
       <View style={styles.container}>
-        <View style={styles.sky}>
+        <ImageBackground source={bg} style={styles.sky} resizeMode="cover">
           {renderGameContent()}
-
           {renderPipes()}
 
-          <View
+          <Image
+            source={birdSprite}
             style={[
               styles.bird,
               {
@@ -335,14 +341,15 @@ const FlappyBirdApp = () => {
                 left: BIRD_START_X,
               },
             ]}
+            resizeMode="contain"
           />
 
           <Text style={styles.scoreText}>
             Score: {gameStateRef.current.score}
           </Text>
-        </View>
+        </ImageBackground>
 
-        <View style={styles.ground} />
+        <Image source={ground} style={styles.ground} resizeMode="stretch" />
       </View>
     </TouchableWithoutFeedback>
   );
@@ -351,50 +358,83 @@ const FlappyBirdApp = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#050014", // deep space base
   },
+
+  // SKY / BACKGROUND
   sky: {
     flex: 1,
-    background: <img src="assets\images\background_main.png" alt="background" />,
+    backgroundColor: "#120026", // dark violet base
   },
+
+  // GROUND (uses the synthwave sprite)
   ground: {
     height: GROUND_HEIGHT,
-    backgroundColor: "#ded895",
-    borderTopWidth: 5,
-    borderTopColor: "#c5b878",
+    backgroundColor: "#1B2035",
+    borderTopWidth: 4,
+    borderTopColor: "#34E9FF", // neon cyan edge
+    overflow: "hidden",
     zIndex: 4,
   },
+  groundImage: {
+    position: "absolute",
+    top: -10, // pulls texture slightly up so it kisses the border line
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "120%",
+  },
+
+  // PIPES
   pipe: {
     position: "absolute",
-    backgroundColor: "#000000ff",
-    borderWidth: 2,
-    borderColor: "#38730b",
-    borderRadius: 0, // Removed radius for pipe body
+    backgroundColor: "#200834", // dark purple body
+    borderWidth: 3,
+    borderColor: "#34E9FF", // neon cyan outline
+    borderRadius: 6,
+    shadowColor: "#FF2BD8", // magenta glow
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 6,
     zIndex: 3,
   },
+
+  // Optional caps if you want later
   pipeTopCap: {
     height: PIPE_CAP_HEIGHT,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     borderTopWidth: 0,
-    top: 0, 
+    top: 0,
   },
   pipeBottomCap: {
     height: PIPE_CAP_HEIGHT,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
     borderBottomWidth: 0,
-    bottom: 0, 
+    bottom: 0,
   },
+
+  // BIRD
   bird: {
     position: "absolute",
     width: BIRD_SIZE,
     height: BIRD_SIZE,
     borderRadius: BIRD_SIZE / 2,
-    backgroundColor: "#ffdb00",
-    borderWidth: 2,
-    borderColor: "#d89b00",
+    // backgroundColor: "#FF2BD8", // neon magenta
+    // borderWidth: 6,
+    // borderColor: "#34E9FF", // cyan rim
+    // shadowColor: "#FF9AFC", // soft glow
+    shadowOpacity: 0.9,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 0 },
+    elevation: 8,
     zIndex: 5,
   },
+
+  // OVERLAY / MESSAGES
   messageContainer: {
     position: "absolute",
     top: 0,
@@ -404,39 +444,43 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(5,0,20,0.65)", // dark translucent overlay
   },
   messageText: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "white",
-    textShadowColor: "black",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
+    color: "#34E9FF",
+    textShadowColor: "#FF2BD8",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 10,
     marginVertical: 10,
   },
   messageTextSmall: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    textShadowColor: "black",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    fontWeight: "600",
+    color: "#FF9AFC",
+    textShadowColor: "#200834",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 4,
     marginVertical: 5,
   },
+
+  // SCORE
   scoreText: {
     position: "absolute",
-    top: 50,
+    top: 40,
     width: "100%",
     textAlign: "center",
-    fontSize: 48,
-    fontWeight: "bold",
-    color: "white",
-    textShadowColor: "black",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 5,
+    fontSize: 44,
+    fontWeight: "900",
+    letterSpacing: 2,
+    color: "#34E9FF",
+    textShadowColor: "#FF2BD8",
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 12,
     zIndex: 6,
   },
 });
+
 
 export default FlappyBirdApp;
