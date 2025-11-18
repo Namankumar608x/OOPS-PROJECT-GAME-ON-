@@ -20,8 +20,8 @@ const GAME_HEIGHT = SCREEN_HEIGHT;
 const GRAVITY = 0.5;
 const JUMP_VELOCITY = -10;
 const GROUND_HEIGHT = 100;
-const BIRD_SIZE = 120;
-const PIPE_WIDTH = 60;
+const BIRD_SIZE = 60
+const PIPE_WIDTH = 30
 const PIPE_CAP_HEIGHT = 20; // New constant for the cap height
 const PIPE_GAP = 300;
 const PIPE_SPEED = 4;
@@ -341,7 +341,7 @@ const FlappyBirdApp = () => {
                 left: BIRD_START_X,
               },
             ]}
-            resizeMode="contain"
+            resizeMode="stretch"
           />
 
           <Text style={styles.scoreText}>
