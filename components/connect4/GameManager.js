@@ -1,4 +1,3 @@
-// GameManager.js - Connect 4 React Component (UPDATED)
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -22,13 +21,11 @@ export default function GameManager() {
   const gameEngineRef = useRef(null);
   const dropAnimations = useRef({});
 
-  // Initialize game engine
   useEffect(() => {
     gameEngineRef.current = new GameEngine();
     setGameState(gameEngineRef.current.getGameState());
   }, []);
 
-  // AI move after player's turn
   useEffect(() => {
     if (
       gameState &&
@@ -36,15 +33,26 @@ export default function GameManager() {
       gameState.currentPlayer === 2 &&
       !gameState.gameOver
     ) {
-      setTimeout(() => {
-        gameEngineRef.current.makeAIMove();
-        setGameState({ ...gameEngineRef.current.getGameState() });
-      }, 500);
+      const aiTimeout = setTimeout(() => {
+        const aiMove = gameEngineRef.current.makeAIMove();
+        if (aiMove !== -1) {
+          setGameState({ ...gameEngineRef.current.getGameState() });
+          
+          setTimeout(() => {
+            const gameEnded = gameEngineRef.current.checkGameEnd();
+            if (gameEnded) {
+              setGameState({ ...gameEngineRef.current.getGameState() });
+            }
+          }, 500);
+        }
+      }, 600);
+
+      return () => clearTimeout(aiTimeout);
     }
   }, [gameState?.currentPlayer, gameState?.gameMode, gameState?.gameOver]);
 
   const handleColumnPress = (col) => {
-    if (!gameEngineRef.current || gameState.gameOver) return;
+    if (!gameEngineRef.current || gameState.gameOver || (gameState.gameMode === 'pvai' && gameState.currentPlayer === 2)) return;
 
     const success = gameEngineRef.current.makeMove(col);
     if (success) {
@@ -75,7 +83,6 @@ export default function GameManager() {
     );
   }
 
-  // Menu Screen
   if (gameState.gameMode === 'menu') {
     return (
       <View style={styles.container}>
@@ -110,7 +117,6 @@ export default function GameManager() {
     );
   }
 
-  // Game Screen
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -120,7 +126,6 @@ export default function GameManager() {
       >
         <View style={styles.backgroundOverlay} />
         <View style={styles.gameContainer}>
-          {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity style={styles.backButton} onPress={handleBackToMenu}>
               <Ionicons name="arrow-back" size={24} color="#fff" />
@@ -152,10 +157,8 @@ export default function GameManager() {
             </TouchableOpacity>
           </View>
 
-          {/* Game Board */}
           <View style={styles.boardContainer}>
             <View style={styles.board}>
-              {/* Grid */}
               {gameState.board.map((row, rowIndex) => (
                 <View key={`row-${rowIndex}`} style={styles.row}>
                   {row.map((cell, colIndex) => {
@@ -186,7 +189,6 @@ export default function GameManager() {
                 </View>
               ))}
 
-              {/* Board frame (blue holes) */}
               <View style={styles.boardFrame}>
                 {gameState.board.map((row, rowIndex) => (
                   <View key={`frame-row-${rowIndex}`} style={styles.frameRow}>
@@ -203,7 +205,6 @@ export default function GameManager() {
               </View>
             </View>
 
-            {/* Column buttons */}
             <View style={styles.columnButtons}>
               {[0, 1, 2, 3, 4, 5, 6].map((col) => (
                 <TouchableOpacity
@@ -215,7 +216,7 @@ export default function GameManager() {
                   onPress={() => handleColumnPress(col)}
                   onPressIn={() => setSelectedCol(col)}
                   onPressOut={() => setSelectedCol(null)}
-                  disabled={gameState.gameOver}
+                  disabled={gameState.gameOver || (gameState.gameMode === 'pvai' && gameState.currentPlayer === 2)}
                 >
                   <Ionicons name="chevron-down" size={24} color="#fff" />
                 </TouchableOpacity>
@@ -223,7 +224,6 @@ export default function GameManager() {
             </View>
           </View>
 
-          {/* Game Over Overlay */}
           {gameState.gameOver && (
             <View style={styles.overlay}>
               <View style={styles.gameOverContainer}>
@@ -276,8 +276,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-
-  // Menu Styles
   menuContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -326,8 +324,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 15,
   },
-
-  // Game Styles
   gameContainer: {
     flex: 1,
     padding: 20,
@@ -382,8 +378,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
   },
-
-  // Board Styles
   boardContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -426,8 +420,6 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 10,
   },
-
-  // Board Frame (Blue holes overlay)
   boardFrame: {
     position: 'absolute',
     top: 10,
@@ -453,8 +445,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'rgba(157, 78, 221, 0.5)',
   },
-
-  // Column Buttons
   columnButtons: {
     flexDirection: 'row',
     marginTop: 20,
@@ -474,8 +464,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 107, 157, 0.7)',
     borderColor: '#FF6B9D',
   },
-
-  // Game Over Overlay
   overlay: {
     position: 'absolute',
     top: 0,

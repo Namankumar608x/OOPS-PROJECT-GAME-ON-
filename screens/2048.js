@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     color: "#ffffff",
-    textShadowColor: "rgba(255, 45, 172, 0.8)", // neon pink glow
+    textShadowColor: "rgba(255, 45, 172, 0.8)", 
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 10,
     zIndex: 2,
