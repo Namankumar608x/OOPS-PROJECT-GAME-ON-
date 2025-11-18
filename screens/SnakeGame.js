@@ -772,7 +772,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // ========== GAME BOARD ==========
+
   gameBoard: {
     width: GRID_SIZE * CELL_SIZE,
     height: GRID_SIZE * CELL_SIZE,
@@ -784,19 +784,16 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
 
-  // Grid lines
   gridLine: {
     position: 'absolute',
     backgroundColor: '#2d2d5f',
    
   },
 
-  // Food
   food: {
     position: 'absolute',
   },
 
-  // Snake segment
   snakeSegment: {
     position: 'absolute',
     alignItems: 'center',
@@ -807,7 +804,6 @@ const styles = StyleSheet.create({
     fontSize: 8,
   },
 
-  // ========== GAME OVER OVERLAY ==========
   gameOverOverlay: {
     position: 'absolute',
     top: 0,
@@ -867,7 +863,7 @@ const styles = StyleSheet.create({
     color: '#0f0f2e',
   },
 
-  // ========== CONTROLS ==========
+
   controls: {
     marginTop: 32,
     alignItems: 'center',
@@ -902,18 +898,17 @@ const styles = StyleSheet.create({
     height: 48,
   },
 
-  // Reset button
  resetButton: {
   width: 100,
   height: 35,
-  backgroundColor: '#12022b',   // updated
+  backgroundColor: '#12022b',   
   alignItems: 'center',
   justifyContent: 'center',
   borderRadius: 4,
   marginTop: 12,
   marginLeft:4,
-  borderWidth: 1,               // added
-  borderColor: '#ffffff',       // added (white border)
+  borderWidth: 1,               
+  borderColor: '#ffffff',       
 },
 
   resetIcon: {
