@@ -353,7 +353,15 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",  
   },
 
-  title: { fontSize: 32, fontWeight: 'bold', marginBottom: 10, color: "white" },
+  title: {
+  fontSize: 36,
+  fontWeight: 'bold',
+  color: "#fff",
+  textShadowColor: '#9900ff',
+  textShadowOffset: { width: 0, height: 0 },
+  textShadowRadius: 12,
+  marginBottom: 10,
+},
 
   scoreContainer: {
     flexDirection: 'row',
@@ -361,9 +369,33 @@ const styles = StyleSheet.create({
     width: '80%',
     marginBottom: 20,
   },
-  score: { fontSize: 12, color:'#9900ffff' },
-  highScore: { fontSize: 12, color: '#9900ffff', fontWeight: 'bold' },
-  multiplier: { fontSize: 12, color: '#9900ffff', fontWeight: 'bold' },
+  multiplier: {
+  fontSize: 16,
+  color: '#ff33cc',
+  fontWeight: 'bold',
+  textShadowColor: '#ff00ff',
+  textShadowOffset: { width: 0, height: 0 },
+  textShadowRadius: 10,
+  transform: [{ scale: 1.2 }]
+},
+score: {
+  fontSize: 16,
+  color: '#ff33cc',
+  fontWeight: 'bold',
+  textShadowColor: '#ff00ff',
+  textShadowOffset: { width: 0, height: 0 },
+  textShadowRadius: 10,
+  transform: [{ scale: 1.2 }]
+},
+highScore: {
+  fontSize: 16,
+  color: '#ff33cc',
+  fontWeight: 'bold',
+  textShadowColor: '#ff00ff',
+  textShadowOffset: { width: 0, height: 0 },
+  textShadowRadius: 10,
+  transform: [{ scale: 1.2 }]
+},
 
   instructions: { marginTop: 20, fontSize: 16, color: '#eee' },
 
