@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
-import { Alert, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import { Alert, Dimensions, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+const { width, height } = Dimensions.get("window");
 const BLOCK_SHAPES = {
   Dot: [[1]],
   Square2x2: [[1, 1], [1, 1]],
@@ -345,10 +345,10 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
-  container: {
+  container:{
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     padding: 20,
     backgroundColor: "rgba(0,0,0,0.3)",  
   },
@@ -362,22 +362,26 @@ const styles = StyleSheet.create({
   textShadowRadius: 12,
   marginBottom: 10,
 },
-
-  scoreContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '80%',
-    marginBottom: 20,
-  },
-  multiplier: {
+scoreContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between', 
+  alignItems: 'center',
+  width: '100%',                   
+  paddingHorizontal: 20,           
+  marginBottom: 20,
+},
+multiplier: {
   fontSize: 16,
   color: '#ff33cc',
   fontWeight: 'bold',
   textShadowColor: '#ff00ff',
   textShadowOffset: { width: 0, height: 0 },
   textShadowRadius: 10,
-  transform: [{ scale: 1.2 }]
+  transform: [{ scale: 1.2 }],
+  minWidth: 80,          
+  textAlign: 'center',
 },
+
 score: {
   fontSize: 16,
   color: '#ff33cc',
@@ -385,8 +389,11 @@ score: {
   textShadowColor: '#ff00ff',
   textShadowOffset: { width: 0, height: 0 },
   textShadowRadius: 10,
-  transform: [{ scale: 1.2 }]
+  transform: [{ scale: 1.2 }],
+  minWidth: 80,
+  textAlign: 'center',
 },
+
 highScore: {
   fontSize: 16,
   color: '#ff33cc',
@@ -394,15 +401,22 @@ highScore: {
   textShadowColor: '#ff00ff',
   textShadowOffset: { width: 0, height: 0 },
   textShadowRadius: 10,
-  transform: [{ scale: 1.2 }]
+  transform: [{ scale: 1.2 }],
+  minWidth: 80,
+  textAlign: 'center',
 },
+
 
   instructions: { marginTop: 20, fontSize: 16, color: '#eee' },
 
   row: { flexDirection: 'row' },
 
-  cell: { width: 35, height: 35, borderWidth: 1, borderColor: '#ccc' },
-  emptyCell: { backgroundColor: 'rgba(255,255,255,0.2)' },
+  cell: {
+  width: Math.min(width / 10, 36),
+  height: Math.min(width / 10, 36),
+  borderWidth: 1, borderColor: '#ccc' },
+  emptyCell: { backgroundColor: 'rgba(255,255,255,0.2)',
+   },
   blockContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
