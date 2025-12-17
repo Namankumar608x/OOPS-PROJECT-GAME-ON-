@@ -11,9 +11,7 @@
     "ios": {
       "supportsTablet": true
     },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    },
+    "runtimeVersion": "exposdk:54.0.0",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.jpeg",
@@ -52,7 +50,7 @@
     },
     "owner": "krishana97",
     "updates": {
-      "url": "https://u.expo.dev/b5035ffb-1c76-4cfb-94f0-b12cf4f31120",
+      "url": "https://u.expo.dev/87b35f30-5317-4141-84a1-d9cf6725b99e",
       "enabled": true,
       "fallbackToCacheTimeout": 0
     }
