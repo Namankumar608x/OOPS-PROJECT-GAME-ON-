@@ -10,7 +10,7 @@ import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
-// TicTacToe Game Class - OOP Implementation
+// TicTacToe Game Class - OOP Implementation with Minimax
 class TicTacToeGame {
   constructor(gridSize, isSinglePlayer) {
     this.gridSize = gridSize;
@@ -95,39 +95,117 @@ class TicTacToeGame {
     return false;
   }
 
+  // Minimax Algorithm with Alpha-Beta Pruning
+  minimax(board, depth, isMaximizing, alpha, beta) {
+    const tempBoard = this.board;
+    const tempWinner = this.winner;
+    const tempWinningLine = this.winningLine;
+    const tempMoveCount = this.moveCount;
+    
+    this.board = [...board];
+    this.moveCount = board.filter(cell => cell !== null).length;
+    this.winner = null;
+    this.winningLine = [];
+    this.checkWinner();
+    
+    const winner = this.winner;
+    
+    this.board = tempBoard;
+    this.winner = tempWinner;
+    this.winningLine = tempWinningLine;
+    this.moveCount = tempMoveCount;
+    
+    if (winner === 'O') return 10 - depth;
+    if (winner === 'X') return depth - 10;
+    if (winner === 'Draw') return 0;
+    
+    if (this.gridSize > 3 && depth >= 4) return 0;
+    
+    if (isMaximizing) {
+      let maxEval = -Infinity;
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === null) {
+          board[i] = 'O';
+          const evalScore = this.minimax(board, depth + 1, false, alpha, beta);
+          board[i] = null;
+          maxEval = Math.max(maxEval, evalScore);
+          alpha = Math.max(alpha, evalScore);
+          if (beta <= alpha) break;
+        }
+      }
+      return maxEval;
+    } else {
+      let minEval = Infinity;
+      for (let i = 0; i < board.length; i++) {
+        if (board[i] === null) {
+          board[i] = 'X';
+          const evalScore = this.minimax(board, depth + 1, true, alpha, beta);
+          board[i] = null;
+          minEval = Math.min(minEval, evalScore);
+          beta = Math.min(beta, evalScore);
+          if (beta <= alpha) break;
+        }
+      }
+      return minEval;
+    }
+  }
+
   getAIMove() {
+    if (this.gridSize > 3) {
+      for (let i = 0; i < this.board.length; i++) {
+        if (!this.board[i]) {
+          this.board[i] = 'O';
+          this.checkWinner();
+          if (this.winner === 'O') {
+            this.board[i] = null;
+            this.winner = null;
+            this.winningLine = [];
+            return i;
+          }
+          this.board[i] = null;
+          this.winner = null;
+        }
+      }
+      
+      for (let i = 0; i < this.board.length; i++) {
+        if (!this.board[i]) {
+          this.board[i] = 'X';
+          this.checkWinner();
+          if (this.winner === 'X') {
+            this.board[i] = null;
+            this.winner = null;
+            this.winningLine = [];
+            return i;
+          }
+          this.board[i] = null;
+          this.winner = null;
+        }
+      }
+      
+      const center = Math.floor(this.board.length / 2);
+      if (this.board[center] === null) return center;
+      
+      const emptySpots = this.board.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+      return emptySpots[Math.floor(Math.random() * emptySpots.length)];
+    }
+    
+    let bestMove = -1;
+    let bestValue = -Infinity;
+    
     for (let i = 0; i < this.board.length; i++) {
-      if (!this.board[i]) {
+      if (this.board[i] === null) {
         this.board[i] = 'O';
-        this.checkWinner();
-        if (this.winner === 'O') {
-          this.board[i] = null;
-          this.winner = null;
-          this.winningLine = [];
-          return i;
-        }
+        const moveValue = this.minimax([...this.board], 0, false, -Infinity, Infinity);
         this.board[i] = null;
-        this.winner = null;
+        
+        if (moveValue > bestValue) {
+          bestValue = moveValue;
+          bestMove = i;
+        }
       }
     }
     
-    for (let i = 0; i < this.board.length; i++) {
-      if (!this.board[i]) {
-        this.board[i] = 'X';
-        this.checkWinner();
-        if (this.winner === 'X') {
-          this.board[i] = null;
-          this.winner = null;
-          this.winningLine = [];
-          return i;
-        }
-        this.board[i] = null;
-        this.winner = null;
-      }
-    }
-    
-    const emptySpots = this.board.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
-    return emptySpots[Math.floor(Math.random() * emptySpots.length)];
+    return bestMove;
   }
 
   reset() {
@@ -176,7 +254,6 @@ const TicTacToeScreen = () => {
     const value = boardState[index];
     const isWinning = game.winningLine.includes(index);
     
-    // Calculate proper cell size based on available space
     const boardWidth = Math.min(width * 0.9, 500);
     const cellSize = (boardWidth / game.gridSize) - 8;
     
@@ -267,7 +344,7 @@ const TicTacToeScreen = () => {
           <Text style={styles.subtitle}>CHOOSE GRID SIZE</Text>
 
           <View style={styles.gridOptions}>
-            {[3, 5, 7].map(size => (
+            {[3, 5].map(size => (
               <TouchableOpacity
                 key={size}
                 style={styles.gridOption}
@@ -306,7 +383,6 @@ const TicTacToeScreen = () => {
     );
   }
 
-  // Game Screen
   const boardWidth = Math.min(width * 0.9, 500);
   
   return (
@@ -315,7 +391,7 @@ const TicTacToeScreen = () => {
       <View style={styles.gameContainer}>
         <View style={styles.turnContainer}>
           <Text style={styles.turnText}>
-            { game.winner === 'Draw'? "🤝 It's a Draw!": `🎉 Player ${game.winner} Wins!: Player ${game.currentPlayer}'s Turn`}
+            {game.winner === 'Draw' ? "🤝 It's a Draw!" : game.winner ? `🎉 Player ${game.winner} Wins!` : `Player ${game.currentPlayer}'s Turn`}
           </Text>
         </View>
 
@@ -348,14 +424,13 @@ const TicTacToeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f0c29',
+    backgroundColor: '#1a0a3e',
   },
   gradientOverlay: {
     position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: '#0f0c29',
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    backgroundColor: '#1a0a3e',
   },
   menuContainer: {
     flex: 1,
@@ -421,7 +496,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
   buttonGradient: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255, 0, 255, 0.3)',
     paddingHorizontal: 40,
     paddingVertical: 18,
     alignItems: 'center',
@@ -430,7 +505,7 @@ const styles = StyleSheet.create({
   menuButtonText: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#667eea',
+    color: '#ffffff',
     letterSpacing: 1,
   },
   gridOptions: {
@@ -450,7 +525,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
   gridOptionInner: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255, 0, 255, 0.3)',
     padding: 20,
     alignItems: 'center',
     borderRadius: 20,
@@ -465,7 +540,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   gridPreviewCell: {
-    backgroundColor: '#667eea',
+    backgroundColor: '#ffffff',
     margin: 0.5,
     borderRadius: 2,
     opacity: 0.8,
@@ -473,7 +548,7 @@ const styles = StyleSheet.create({
   gridOptionText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#667eea',
+    color: '#ffffff',
     letterSpacing: 1,
   },
   backButton: {
@@ -481,7 +556,7 @@ const styles = StyleSheet.create({
     top: 50,
     left: 20,
     padding: 15,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 0, 255, 0.5)',
     borderRadius: 15,
   },
   backButtonText: {
@@ -497,12 +572,11 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   turnContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: 'rgba(255, 0, 255, 0.3)',
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 25,
     marginBottom: 30,
-    backdropFilter: 'blur(10px)',
   },
   turnText: {
     fontSize: 24,
@@ -528,7 +602,7 @@ const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#2a1a5e',
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -537,7 +611,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   winningCell: {
-    backgroundColor: '#ffd93d',
+    backgroundColor: '#ffff00',
     transform: [{ scale: 1.05 }],
   },
   cellText: {
@@ -550,7 +624,7 @@ const styles = StyleSheet.create({
     color: '#ff6b6b',
   },
   oText: {
-    color: '#4ecdc4',
+    color: '#00ffff',
   },
   winningText: {
     transform: [{ scale: 1.15 }],
@@ -563,7 +637,7 @@ const styles = StyleSheet.create({
   },
   gameButton: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'rgba(255, 0, 255, 0.3)',
     paddingVertical: 15,
     borderRadius: 25,
     alignItems: 'center',
@@ -575,8 +649,8 @@ const styles = StyleSheet.create({
   },
   gameButtonText: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#667eea',
+    fontWeight: 'light',
+    color: '#ffffff',
     letterSpacing: 0.5,
   },
 });

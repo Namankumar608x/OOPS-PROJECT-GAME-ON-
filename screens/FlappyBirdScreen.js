@@ -22,7 +22,7 @@ const JUMP_VELOCITY = -10;
 const GROUND_HEIGHT = 100;
 const BIRD_SIZE = 60
 const PIPE_WIDTH = 30
-const PIPE_CAP_HEIGHT = 20; // New constant for the cap height
+const PIPE_CAP_HEIGHT = 20; 
 const PIPE_GAP = 300;
 const PIPE_SPEED = 4;
 const PIPE_SPAWN_INTERVAL = 1500;
@@ -64,7 +64,6 @@ class Bird {
     const birdTop = this.getTop();
     const birdBottom = this.getBottom();
 
-    // 1. Check for horizontal overlap
     const horizontalOverlap =
       birdRight > pipe.getLeft() && birdLeft < pipe.getRight();
 
@@ -72,11 +71,8 @@ class Bird {
       return false;
     }
 
-    // 2. Check for vertical collision
-    // Collision with top pipe: bird's top edge is above the top pipe's bottom edge
     const collisionWithTopPipe = birdTop < pipe.getTopPipeBottom();
 
-    // Collision with bottom pipe: bird's bottom edge is below the bottom pipe's top edge
     const collisionWithBottomPipe = birdBottom > pipe.getBottomPipeTop();
 
     return collisionWithTopPipe || collisionWithBottomPipe;
@@ -182,11 +178,8 @@ const FlappyBirdApp = () => {
           return;
         }
 
-        // 1. Bird Physics Update
         state.bird.applyGravity();
         state.bird.updatePosition();
-
-        // 2. Ground and Ceiling Collision (Ends game on ground hit)
         const groundCollisionY = GAME_HEIGHT - GROUND_HEIGHT - state.bird.size;
         if (state.bird.getBottom() >= GAME_HEIGHT - GROUND_HEIGHT) {
           state.bird.y = groundCollisionY;
@@ -199,27 +192,17 @@ const FlappyBirdApp = () => {
           state.bird.y = 0;
           state.bird.velocity = 0;
         }
-
-        // 3. Pipe Updates and Cleanup
         state.pipes.forEach((pipe) => pipe.updatePosition());
         state.pipes = state.pipes.filter((pipe) => !pipe.isOffScreen());
-
-        // 4. Pipe Spawning
         if (Date.now() - lastSpawnTimeRef.current > PIPE_SPAWN_INTERVAL) {
           spawnPipe();
         }
-
-        // 5. Check Collision and Score
         for (let i = 0; i < state.pipes.length; i++) {
           const pipe = state.pipes[i];
-
-          // Collision Check
           if (state.bird.checkCollisionWithPipe(pipe)) {
             endGame();
             return;
           }
-
-          // Score Check: Bird's center has passed the pipe's right edge
           if (BIRD_CENTER_X > pipe.getRight() && !pipe.passed) {
             state.score += 1;
             pipe.passed = true;
@@ -291,7 +274,6 @@ const FlappyBirdApp = () => {
 
       return (
         <React.Fragment key={index}>
-          {/* Top Pipe */}
           <View
             style={[
               styles.pipe,
@@ -304,8 +286,6 @@ const FlappyBirdApp = () => {
               },
             ]}
           />
-
-          {/* Bottom Pipe (touches ground) */}
           <View
             style={[
               styles.pipe,
@@ -358,27 +338,24 @@ const FlappyBirdApp = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050014", // deep space base
-  },
+    backgroundColor: "#050014",},
 
-  // SKY / BACKGROUND
+    
   sky: {
     flex: 1,
-    backgroundColor: "#120026", // dark violet base
-  },
+    backgroundColor: "#120026",  },
 
-  // GROUND (uses the synthwave sprite)
   ground: {
     height: GROUND_HEIGHT,
     backgroundColor: "#1B2035",
     borderTopWidth: 4,
-    borderTopColor: "#34E9FF", // neon cyan edge
+    borderTopColor: "#34E9FF",
     overflow: "hidden",
     zIndex: 4,
   },
   groundImage: {
     position: "absolute",
-    top: -10, // pulls texture slightly up so it kisses the border line
+    top: -10,
     left: 0,
     right: 0,
     bottom: 0,
@@ -386,14 +363,14 @@ const styles = StyleSheet.create({
     height: "120%",
   },
 
-  // PIPES
+  
   pipe: {
     position: "absolute",
-    backgroundColor: "#200834", // dark purple body
+    backgroundColor: "#200834",
     borderWidth: 3,
-    borderColor: "#34E9FF", // neon cyan outline
+    borderColor: "#34E9FF", 
     borderRadius: 6,
-    shadowColor: "#FF2BD8", // magenta glow
+    shadowColor: "#FF2BD8", 
     shadowOpacity: 0.6,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 0 },
